@@ -33,6 +33,7 @@ public class GenerateSignalController implements Initializable {
     public TextField dutyCycle; //kw
 
     private Object chosenSignal;
+    private int signalGroup;
     private Formula formula;
 
     @Override
@@ -76,27 +77,25 @@ public class GenerateSignalController implements Initializable {
     }
 
     @FXML
-    private void chooseSignal(ActionEvent event) {
+    private void chooseSignal() {
         chosenSignal = signalType.getValue();
         if (chosenSignal == null) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText("Signal generator error");
-            alert.setContentText("No signal chosen.");
-            alert.showAndWait();
-            return;
+            Error("Error", "Signal generator error", "No signal chosen.");
         } else {
             //A, t1, d
             if (chosenSignal == "Uniform noise" || chosenSignal == "Gaussian noise") {
                 amplitude.setVisible(true);
                 startingPoint.setVisible(true);
                 duration.setVisible(true);
+                period.setVisible(false);
+                dutyCycle.setVisible(false);
                 //A, T, t1, d
             } else if (chosenSignal == "Sine wave" || chosenSignal == "Half-wave rectified sine" || chosenSignal == "Full-wave rectifier sine") {
                 amplitude.setVisible(true);
                 startingPoint.setVisible(true);
                 duration.setVisible(true);
                 period.setVisible(true);
+                dutyCycle.setVisible(false);
                 //A, T, t1, d, kw
             } else if (chosenSignal == "Square wave" || chosenSignal == "Symmetrical  square wave" || chosenSignal == "Triangle wave") {
                 amplitude.setVisible(true);
@@ -109,6 +108,8 @@ public class GenerateSignalController implements Initializable {
                 amplitude.setVisible(true);
                 startingPoint.setVisible(true);
                 duration.setVisible(true);
+                period.setVisible(false);
+                dutyCycle.setVisible(false);
                 //A, n1, ns, l, f
             } else if (chosenSignal == "Kronecker impulse") {
                 //A, t1, d, f, p
@@ -116,19 +117,65 @@ public class GenerateSignalController implements Initializable {
                 amplitude.setVisible(true);
                 startingPoint.setVisible(true);
                 duration.setVisible(true);
+                period.setVisible(false);
+                dutyCycle.setVisible(false);
             }
         }
     }
 
     @FXML
-    private void generateSignal(ActionEvent event) {
-        float A = Float.parseFloat(amplitude.getCharacters().toString());
-        float T =Float.parseFloat(period.getCharacters().toString());
-        float t1 =Float.parseFloat(startingPoint.getCharacters().toString());
-        float d =Float.parseFloat(duration.getCharacters().toString());
-        ArrayList<Double> X = formula.generateX(t1, d);
-        ArrayList<Double> Y = formula.sin(X, A, T, t1);
-        System.out.println(X);
-        System.out.println(Y);
+    private void generateSignal() {
+        if (validateParameter()) {
+            float A = 0, T = 0, t1 = 0, d = 0, kw = 0;
+            if (amplitude.isVisible()) {
+                A = Float.parseFloat(amplitude.getText());
+            }
+            if (startingPoint.isVisible()) {
+                t1 = Float.parseFloat(startingPoint.getText());
+            }
+            if (period.isVisible()) {
+                T = Float.parseFloat(period.getText());
+            }
+            if (duration.isVisible()) {
+                d = Float.parseFloat(duration.getText());
+            }
+            if (dutyCycle.isVisible()) {
+                kw = Float.parseFloat(dutyCycle.getText());
+            }
+            ArrayList<Double> X = formula.generateX(t1, d);
+            ArrayList<Double> Y = new ArrayList<>();
+            if (chosenSignal == "Sine wave") {
+                Y = formula.sin(X, A, T, t1, 0);
+            }
+            if (chosenSignal == "Half-wave rectified sine") {
+                Y = formula.sin(X, A, T, t1, 1); //half
+            }
+            if (chosenSignal == "Full-wave rectifier sine") {
+                Y = formula.sin(X, A, T, t1, 2); //full
+            }
+
+            System.out.println(X);
+            System.out.println(Y);
+        }
+    }
+
+    private void Error(String title, String header, String content) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+
+    private boolean validateParameter() {
+        if ((amplitude.isVisible() && amplitude.getText().isEmpty()) ||
+                (startingPoint.isVisible() && startingPoint.getText().isEmpty()) ||
+                (period.isVisible() && period.getText().isEmpty()) ||
+                (duration.isVisible() && duration.getText().isEmpty()) ||
+                (dutyCycle.isVisible() && dutyCycle.getText().isEmpty())) {
+            Error("Error", "Parameter error", "All parameters are required");
+            return false;
+        }
+        return true;
     }
 }

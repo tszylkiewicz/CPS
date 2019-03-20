@@ -41,7 +41,7 @@
             <Font size="15.0" />
          </font>
       </Label>
-      <Button fx:id="generateSignal" layoutX="15.0" layoutY="120.0" mnemonicParsing="false" onAction="#test" text="Generate" />
+      <Button fx:id="chooseSignal" layoutX="15.0" layoutY="120.0" mnemonicParsing="false" onAction="#chooseSignal" text="Choose" />
       <ChoiceBox fx:id="signalType" layoutX="15.0" layoutY="80.0" prefWidth="150.0" />
       <GridPane layoutX="15.0" layoutY="180.0">
         <columnConstraints>
@@ -68,5 +68,6 @@
             <TextField fx:id="dutyCycle" GridPane.columnIndex="1" GridPane.rowIndex="4" />
          </children>
       </GridPane>
+      <Button fx:id="generateSignal" layoutX="15.0" layoutY="350.0" mnemonicParsing="false" onAction="#generateSignal" text="Generate" />
    </children>
 </AnchorPane>

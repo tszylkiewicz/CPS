@@ -153,6 +153,12 @@ public class GenerateSignalController implements Initializable {
             if (chosenSignal == "Full-wave rectifier sine") {
                 Y = formula.sin(X, A, T, t1, 2); //full
             }
+            if(chosenSignal == "Uniform noise") {
+                Y = formula.uniformNoise(X, A);
+            }
+            if(chosenSignal == "Gaussian noise") {
+                Y = formula.gaussianNoise(X, A);
+            }
 
             System.out.println(X);
             System.out.println(Y);

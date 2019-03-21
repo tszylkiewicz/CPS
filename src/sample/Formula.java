@@ -1,6 +1,7 @@
 package sample;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Formula {
 
@@ -43,6 +44,30 @@ public class Formula {
             default: {
                 break;
             }
+        }
+        return Y;
+    }
+
+    public ArrayList<Double> uniformNoise(ArrayList<Double> X, float A) {
+        ArrayList<Double> Y = new ArrayList<>();
+        double min = A * -1.0d;
+        double max = A;
+        for (Double ignored : X) {
+            Y.add(min + new Random().nextDouble() * (max - min));
+        }
+        return Y;
+    }
+
+    public ArrayList<Double> gaussianNoise(ArrayList<Double> X, float A) {
+        ArrayList<Double> Y = new ArrayList<>();
+        double min = A * -1.0d;
+        double max = A;
+        Random r = new Random();
+        for (Double x : X) {
+            //double temp = (1.0d/(Math.sqrt(2.0d * Math.PI)))*Math.pow(Math.E, (-Math.pow(x,2))/2.0d);
+            //double temp = r.nextGaussian();
+            //System.out.println(temp);
+            Y.add(r.nextGaussian());
         }
         return Y;
     }

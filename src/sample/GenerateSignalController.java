@@ -2,13 +2,11 @@ package sample;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.util.function.UnaryOperator;
 
@@ -17,7 +15,7 @@ public class GenerateSignalController implements Initializable {
     ObservableList<String> signalList = FXCollections.observableArrayList(
             "Uniform noise", "Gaussian noise",
             "Sine wave", "Half-wave rectified sine", "Full-wave rectifier sine",
-            "Square wave", "Symmetrical  square wave", "Triangle wave",
+            "Square wave", "Symmetrical square wave", "Triangle wave",
             "Unit step function", "Kronecker impulse", "Impulse noise");
 
     @FXML
@@ -31,10 +29,15 @@ public class GenerateSignalController implements Initializable {
     public TextField duration;  //d
     public TextField period;    //T
     public TextField dutyCycle; //kw
+    public TextField step; //ts
+    public TextField frequency; //f
+    public TextField probability; //p
+    public TextField sampleNumber; //ns
 
     private Object chosenSignal;
-    private int signalGroup;
     private Formula formula;
+
+    private BaseSignal signal;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -68,12 +71,20 @@ public class GenerateSignalController implements Initializable {
         duration.setTextFormatter(new TextFormatter<>(filter));
         period.setTextFormatter(new TextFormatter<>(filter));
         dutyCycle.setTextFormatter(new TextFormatter<>(filter));
+        step.setTextFormatter(new TextFormatter<>(filter));
+        frequency.setTextFormatter(new TextFormatter<>(filter));
+        probability.setTextFormatter(new TextFormatter<>(filter));
+        sampleNumber.setTextFormatter(new TextFormatter<>(filter));
 
         amplitude.setVisible(false);
         startingPoint.setVisible(false);
         duration.setVisible(false);
         period.setVisible(false);
         dutyCycle.setVisible(false);
+        step.setVisible(false);
+        frequency.setVisible(false);
+        probability.setVisible(false);
+        sampleNumber.setVisible(false);
     }
 
     @FXML
@@ -89,6 +100,10 @@ public class GenerateSignalController implements Initializable {
                 duration.setVisible(true);
                 period.setVisible(false);
                 dutyCycle.setVisible(false);
+                step.setVisible(false);
+                frequency.setVisible(false);
+                probability.setVisible(false);
+                sampleNumber.setVisible(false);
                 //A, T, t1, d
             } else if (chosenSignal == "Sine wave" || chosenSignal == "Half-wave rectified sine" || chosenSignal == "Full-wave rectifier sine") {
                 amplitude.setVisible(true);
@@ -96,6 +111,10 @@ public class GenerateSignalController implements Initializable {
                 duration.setVisible(true);
                 period.setVisible(true);
                 dutyCycle.setVisible(false);
+                step.setVisible(false);
+                frequency.setVisible(false);
+                probability.setVisible(false);
+                sampleNumber.setVisible(false);
                 //A, T, t1, d, kw
             } else if (chosenSignal == "Square wave" || chosenSignal == "Symmetrical  square wave" || chosenSignal == "Triangle wave") {
                 amplitude.setVisible(true);
@@ -103,6 +122,10 @@ public class GenerateSignalController implements Initializable {
                 duration.setVisible(true);
                 period.setVisible(true);
                 dutyCycle.setVisible(true);
+                step.setVisible(false);
+                frequency.setVisible(false);
+                probability.setVisible(false);
+                sampleNumber.setVisible(false);
                 //A, t1, d, ts
             } else if (chosenSignal == "Unit step function") {
                 amplitude.setVisible(true);
@@ -110,8 +133,21 @@ public class GenerateSignalController implements Initializable {
                 duration.setVisible(true);
                 period.setVisible(false);
                 dutyCycle.setVisible(false);
-                //A, n1, ns, l, f
+                step.setVisible(true);
+                frequency.setVisible(false);
+                probability.setVisible(false);
+                sampleNumber.setVisible(false);
+                //A, t1, d, f, ns
             } else if (chosenSignal == "Kronecker impulse") {
+                amplitude.setVisible(true);
+                startingPoint.setVisible(true);
+                duration.setVisible(true);
+                period.setVisible(false);
+                dutyCycle.setVisible(false);
+                step.setVisible(false);
+                frequency.setVisible(true);
+                probability.setVisible(false);
+                sampleNumber.setVisible(true);
                 //A, t1, d, f, p
             } else if (chosenSignal == "Impulse noise") {
                 amplitude.setVisible(true);
@@ -119,6 +155,10 @@ public class GenerateSignalController implements Initializable {
                 duration.setVisible(true);
                 period.setVisible(false);
                 dutyCycle.setVisible(false);
+                step.setVisible(false);
+                frequency.setVisible(true);
+                probability.setVisible(true);
+                sampleNumber.setVisible(false);
             }
         }
     }
@@ -126,7 +166,7 @@ public class GenerateSignalController implements Initializable {
     @FXML
     private void generateSignal() {
         if (validateParameter()) {
-            float A = 0, T = 0, t1 = 0, d = 0, kw = 0;
+            float A = 0, T = 0, t1 = 0, d = 0, kw = 0, ts = 0, f = 0, ns = 0, p = 0;
             if (amplitude.isVisible()) {
                 A = Float.parseFloat(amplitude.getText());
             }
@@ -142,26 +182,64 @@ public class GenerateSignalController implements Initializable {
             if (dutyCycle.isVisible()) {
                 kw = Float.parseFloat(dutyCycle.getText());
             }
-            ArrayList<Double> X = formula.generateX(t1, d);
-            ArrayList<Double> Y = new ArrayList<>();
-            if (chosenSignal == "Sine wave") {
-                Y = formula.sin(X, A, T, t1, 0);
+            if (step.isVisible()) {
+                ts = Float.parseFloat(step.getText());
             }
-            if (chosenSignal == "Half-wave rectified sine") {
-                Y = formula.sin(X, A, T, t1, 1); //half
+            if (frequency.isVisible()) {
+                f = Float.parseFloat(frequency.getText());
             }
-            if (chosenSignal == "Full-wave rectifier sine") {
-                Y = formula.sin(X, A, T, t1, 2); //full
+            if (probability.isVisible()) {
+                p = Float.parseFloat(probability.getText());
             }
-            if(chosenSignal == "Uniform noise") {
-                Y = formula.uniformNoise(X, A);
-            }
-            if(chosenSignal == "Gaussian noise") {
-                Y = formula.gaussianNoise(X, A);
+            if (sampleNumber.isVisible()) {
+                ns = Float.parseFloat(sampleNumber.getText());
             }
 
-            System.out.println(X);
-            System.out.println(Y);
+
+            if (chosenSignal == "Uniform noise") {
+                signal = new UniformNoise(A, t1, d, 0);
+            }
+            if (chosenSignal == "Gaussian noise") {
+                //Y = formula.gaussianNoise(X, A);
+            }
+            if (chosenSignal == "Sine wave") {
+                signal = new SineWave(A, t1, d, T, 0);
+            }
+            if (chosenSignal == "Half-wave rectified sine") {
+                signal = new SineWave(A, t1, d, T, 1);
+            }
+            if (chosenSignal == "Full-wave rectifier sine") {
+                signal = new SineWave(A, t1, d, T, 2);
+            }
+            if (chosenSignal == "Square wave") {
+                signal = new SquareWave(A, t1, d, T, kw, 0);
+            }
+            if (chosenSignal == "Symmetrical square wave") {
+                signal = new SquareWave(A, t1, d, T, kw, 1);
+            }
+            if (chosenSignal == "Triangle wave") {
+                signal = new SquareWave(A, t1, d, T, kw, 2);
+            }
+            if (chosenSignal == "Unit step function") {
+                signal = new UnitStep(A, t1, d, ts);
+            }
+            if (chosenSignal == "Kronecker impulse") {
+                signal = new KroneckerImpulse(A, t1, d, f, ns);
+            }
+            if (chosenSignal == "Impulse noise") {
+                signal = new ImpulseNoise(A, t1, d, f, p);
+            }
+
+            signal.generateSignal();
+            //System.out.println(signal.A);
+            //System.out.println(signal.t1);
+            //System.out.println(signal.d);
+            System.out.println(signal.signal.keySet());
+            System.out.println(signal.signal.values());
+            //signal.addition(signal);
+            //signal.subtraction(signal);
+            //signal.multiplication(signal);
+            //signal.division(signal);
         }
     }
 
@@ -178,7 +256,12 @@ public class GenerateSignalController implements Initializable {
                 (startingPoint.isVisible() && startingPoint.getText().isEmpty()) ||
                 (period.isVisible() && period.getText().isEmpty()) ||
                 (duration.isVisible() && duration.getText().isEmpty()) ||
-                (dutyCycle.isVisible() && dutyCycle.getText().isEmpty())) {
+                (dutyCycle.isVisible() && dutyCycle.getText().isEmpty()) ||
+                (step.isVisible() && step.getText().isEmpty()) ||
+                (frequency.isVisible() && frequency.getText().isEmpty()) ||
+                (sampleNumber.isVisible() && sampleNumber.getText().isEmpty()) ||
+                (probability.isVisible() && probability.getText().isEmpty())
+        ) {
             Error("Error", "Parameter error", "All parameters are required");
             return false;
         }

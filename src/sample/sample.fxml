@@ -54,6 +54,10 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
             <Label text="Amplitude" />
@@ -61,13 +65,21 @@
             <Label text="Duration" GridPane.rowIndex="2" />
             <Label text="Period" GridPane.rowIndex="3" />
             <Label text="Duty cycle" GridPane.rowIndex="4" />
+            <Label text="Step" GridPane.rowIndex="5" />
+            <Label text="Frequency" GridPane.rowIndex="6" />
+            <Label text="Probability" GridPane.rowIndex="7" />
+            <Label text="Sample number" GridPane.rowIndex="8" />
             <TextField fx:id="amplitude" GridPane.columnIndex="1" />
             <TextField fx:id="startingPoint" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <TextField fx:id="duration" GridPane.columnIndex="1" GridPane.rowIndex="2" />
             <TextField fx:id="period" GridPane.columnIndex="1" GridPane.rowIndex="3" />
             <TextField fx:id="dutyCycle" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+            <TextField fx:id="step" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+            <TextField fx:id="frequency" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+            <TextField fx:id="probability" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+            <TextField fx:id="sampleNumber" GridPane.columnIndex="1" GridPane.rowIndex="8" />
          </children>
       </GridPane>
-      <Button fx:id="generateSignal" layoutX="15.0" layoutY="350.0" mnemonicParsing="false" onAction="#generateSignal" text="Generate" />
+      <Button fx:id="generateSignal" layoutX="11.0" layoutY="461.0" mnemonicParsing="false" onAction="#generateSignal" text="Generate" />
    </children>
 </AnchorPane>

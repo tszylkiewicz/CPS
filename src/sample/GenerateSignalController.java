@@ -264,6 +264,11 @@ public class GenerateSignalController implements Initializable {
         lineChart.setCreateSymbols(false);
     }
 
+    @FXML
+    public void clearLineChart(){
+        lineChart.getData().clear();
+    }
+
     private void Error(String title, String header, String content) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);

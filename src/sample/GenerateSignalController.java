@@ -1,6 +1,5 @@
 package sample;
 
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -253,6 +252,7 @@ public class GenerateSignalController implements Initializable {
 
     public void generateLineChart() {
         XYChart.Series<Double, Double> series = new XYChart.Series<>();
+        series.setName(chosenSignal.toString());
 
         //adding data from signals to series
         for (Map.Entry<Double, Double> entry : signal.signal.entrySet()) {
@@ -261,6 +261,7 @@ public class GenerateSignalController implements Initializable {
 
         //adding series to the line chart
         lineChart.getData().add(series);
+        lineChart.setCreateSymbols(false);
     }
 
     private void Error(String title, String header, String content) {

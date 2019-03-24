@@ -4,15 +4,20 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 
 import java.net.URL;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.function.UnaryOperator;
 
+import static javafx.collections.FXCollections.observableArrayList;
+
 public class GenerateSignalController implements Initializable {
 
-    ObservableList<String> signalList = FXCollections.observableArrayList(
+    ObservableList<String> signalList = observableArrayList(
             "Uniform noise", "Gaussian noise",
             "Sine wave", "Half-wave rectified sine", "Full-wave rectifier sine",
             "Square wave", "Symmetrical square wave", "Triangle wave",
@@ -38,6 +43,9 @@ public class GenerateSignalController implements Initializable {
     private Formula formula;
 
     private BaseSignal signal;
+
+    @FXML
+    private LineChart<Double, Double> lineChart;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -241,6 +249,18 @@ public class GenerateSignalController implements Initializable {
             //signal.multiplication(signal);
             //signal.division(signal);
         }
+    }
+
+    public void generateLineChart() {
+        XYChart.Series<Double, Double> series = new XYChart.Series<>();
+
+        //adding data from signals to series
+        for (Map.Entry<Double, Double> entry : signal.signal.entrySet()) {
+            series.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue()));
+        }
+
+        //adding series to the line chart
+        lineChart.getData().add(series);
     }
 
     private void Error(String title, String header, String content) {

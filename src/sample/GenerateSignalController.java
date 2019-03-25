@@ -4,6 +4,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
+import javafx.scene.chart.ScatterChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 
@@ -45,6 +46,9 @@ public class GenerateSignalController implements Initializable {
 
     @FXML
     private LineChart<Double, Double> lineChart;
+
+    @FXML
+    private ScatterChart<Double,Double> scatterChart;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -92,6 +96,8 @@ public class GenerateSignalController implements Initializable {
         frequency.setVisible(false);
         probability.setVisible(false);
         sampleNumber.setVisible(false);
+        lineChart.setVisible(true);
+        scatterChart.setVisible(false);
     }
 
     @FXML
@@ -111,6 +117,8 @@ public class GenerateSignalController implements Initializable {
                 frequency.setVisible(false);
                 probability.setVisible(false);
                 sampleNumber.setVisible(false);
+                lineChart.setVisible(true);
+                scatterChart.setVisible(false);
                 //A, T, t1, d
             } else if (chosenSignal == "Sine wave" || chosenSignal == "Half-wave rectified sine" || chosenSignal == "Full-wave rectifier sine") {
                 amplitude.setVisible(true);
@@ -122,6 +130,8 @@ public class GenerateSignalController implements Initializable {
                 frequency.setVisible(false);
                 probability.setVisible(false);
                 sampleNumber.setVisible(false);
+                lineChart.setVisible(true);
+                scatterChart.setVisible(false);
                 //A, T, t1, d, kw
             } else if (chosenSignal == "Square wave" || chosenSignal == "Symmetrical  square wave" || chosenSignal == "Triangle wave") {
                 amplitude.setVisible(true);
@@ -133,6 +143,8 @@ public class GenerateSignalController implements Initializable {
                 frequency.setVisible(false);
                 probability.setVisible(false);
                 sampleNumber.setVisible(false);
+                lineChart.setVisible(true);
+                scatterChart.setVisible(false);
                 //A, t1, d, ts
             } else if (chosenSignal == "Unit step function") {
                 amplitude.setVisible(true);
@@ -144,6 +156,8 @@ public class GenerateSignalController implements Initializable {
                 frequency.setVisible(false);
                 probability.setVisible(false);
                 sampleNumber.setVisible(false);
+                lineChart.setVisible(true);
+                scatterChart.setVisible(false);
                 //A, t1, d, f, ns
             } else if (chosenSignal == "Kronecker impulse") {
                 amplitude.setVisible(true);
@@ -155,6 +169,8 @@ public class GenerateSignalController implements Initializable {
                 frequency.setVisible(true);
                 probability.setVisible(false);
                 sampleNumber.setVisible(true);
+                lineChart.setVisible(false);
+                scatterChart.setVisible(true);
                 //A, t1, d, f, p
             } else if (chosenSignal == "Impulse noise") {
                 amplitude.setVisible(true);
@@ -166,6 +182,8 @@ public class GenerateSignalController implements Initializable {
                 frequency.setVisible(true);
                 probability.setVisible(true);
                 sampleNumber.setVisible(false);
+                lineChart.setVisible(false);
+                scatterChart.setVisible(true);
             }
         }
     }
@@ -238,6 +256,12 @@ public class GenerateSignalController implements Initializable {
             }
 
             signal.generateSignal();
+
+            if(chosenSignal.toString().toLowerCase().contains("impulse")){
+                generateScatterChart();
+            } else {
+                generateLineChart();
+            }
             //System.out.println(signal.A);
             //System.out.println(signal.t1);
             //System.out.println(signal.d);
@@ -250,7 +274,7 @@ public class GenerateSignalController implements Initializable {
         }
     }
 
-    public void generateLineChart() {
+    private XYChart.Series<Double, Double> createNewDataSeries(){
         XYChart.Series<Double, Double> series = new XYChart.Series<>();
         series.setName(chosenSignal.toString());
 
@@ -259,15 +283,26 @@ public class GenerateSignalController implements Initializable {
             series.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue()));
         }
 
-        //adding series to the line chart
-        lineChart.getData().add(series);
+        return series;
+    }
+
+    public void generateLineChart() {
+         //adding series to the line chart
+        lineChart.getData().add(createNewDataSeries());
         lineChart.setCreateSymbols(false);
     }
 
     @FXML
-    public void clearLineChart(){
+    public void clearAllCharts(){
         lineChart.getData().clear();
+        scatterChart.getData().clear();
     }
+
+    @FXML
+    public void generateScatterChart(){
+        scatterChart.getData().add(createNewDataSeries());
+    }
+
 
     private void Error(String title, String header, String content) {
         Alert alert = new Alert(Alert.AlertType.ERROR);

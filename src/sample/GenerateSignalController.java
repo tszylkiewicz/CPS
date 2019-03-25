@@ -133,7 +133,7 @@ public class GenerateSignalController implements Initializable {
                 lineChart.setVisible(true);
                 scatterChart.setVisible(false);
                 //A, T, t1, d, kw
-            } else if (chosenSignal == "Square wave" || chosenSignal == "Symmetrical  square wave" || chosenSignal == "Triangle wave") {
+            } else if (chosenSignal == "Square wave" || chosenSignal == "Symmetrical square wave" || chosenSignal == "Triangle wave") {
                 amplitude.setVisible(true);
                 startingPoint.setVisible(true);
                 duration.setVisible(true);
@@ -265,12 +265,18 @@ public class GenerateSignalController implements Initializable {
             //System.out.println(signal.A);
             //System.out.println(signal.t1);
             //System.out.println(signal.d);
-            System.out.println(signal.signal.keySet());
-            System.out.println(signal.signal.values());
+            //System.out.println(signal.signal.keySet());
+            //System.out.println(signal.signal.values());
             //signal.addition(signal);
             //signal.subtraction(signal);
             //signal.multiplication(signal);
             //signal.division(signal);
+            try {
+                signal.saveToBinary("as");
+                signal.readFromBinary("as");
+            }catch (Exception ex) {
+               Error("Error","Saving error","File cannot be saved properly.");
+            }
         }
     }
 

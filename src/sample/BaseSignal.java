@@ -1,8 +1,12 @@
 package sample;
 
 import java.util.HashMap;
+import java.io.*;
 
 public class BaseSignal {
+
+    protected float step = 0.01f;
+    public boolean complex = false;
 
     //Parameters
     public float A;
@@ -25,7 +29,7 @@ public class BaseSignal {
     public void generateSignal() {
         float t2 = t1 + d;
         double x, y;
-        for (double t = t1; Math.round(t * 100.00) / 100.00 <= t2; t += 0.01) {
+        for (double t = t1; Math.round(t * 100.00) / 100.00 <= t2; t += step) {
             x = Math.round(t * 100.00) / 100.00;
             y = Math.round(signalFunction(x) * 100000.00) / 100000.00;
             signal.put(x, y);
@@ -89,7 +93,7 @@ public class BaseSignal {
 
         BaseSignal sum = new BaseSignal(sumA, sumT1, sumD);
         double x, y;
-        for (double t = sumT1; Math.round(t * 100.00) / 100.00 <= (sumT1 + sumD); t += 0.01) {
+        for (double t = sumT1; Math.round(t * 100.00) / 100.00 <= (sumT1 + sumD); t += step) {
             x = Math.round(t * 100.00) / 100.00;
             y = signal.getOrDefault(x, 0.0d) + element.signal.getOrDefault(x, 0.0d);
             y = Math.round(y * 100000.00) / 100000.00;
@@ -109,7 +113,7 @@ public class BaseSignal {
 
         BaseSignal sum = new BaseSignal(sumA, sumT1, sumD);
         double x, y;
-        for (double t = sumT1; Math.round(t * 100.00) / 100.00 <= (sumT1 + sumD); t += 0.01) {
+        for (double t = sumT1; Math.round(t * 100.00) / 100.00 <= (sumT1 + sumD); t += step) {
             x = Math.round(t * 100.00) / 100.00;
             y = signal.getOrDefault(x, 0.0d) - element.signal.getOrDefault(x, 0.0d);
             y = Math.round(y * 100000.00) / 100000.00;
@@ -129,7 +133,7 @@ public class BaseSignal {
 
         BaseSignal sum = new BaseSignal(sumA, sumT1, sumD);
         double x, y;
-        for (double t = sumT1; Math.round(t * 100.00) / 100.00 <= (sumT1 + sumD); t += 0.01) {
+        for (double t = sumT1; Math.round(t * 100.00) / 100.00 <= (sumT1 + sumD); t += step) {
             x = Math.round(t * 100.00) / 100.00;
             y = signal.getOrDefault(x, 0.0d) * element.signal.getOrDefault(x, 0.0d);
             y = Math.round(y * 100000.00) / 100000.00;
@@ -149,9 +153,9 @@ public class BaseSignal {
 
         BaseSignal sum = new BaseSignal(sumA, sumT1, sumD);
         double x, y;
-        for (double t = sumT1; Math.round(t * 100.00) / 100.00 <= (sumT1 + sumD); t += 0.01) {
+        for (double t = sumT1; Math.round(t * 100.00) / 100.00 <= (sumT1 + sumD); t += step) {
             x = Math.round(t * 100.00) / 100.00;
-            if(element.signal.getOrDefault(x, 0.0d) != 0.0d) {
+            if (element.signal.getOrDefault(x, 0.0d) != 0.0d) {
                 y = signal.getOrDefault(x, 0.0d) / element.signal.getOrDefault(x, 0.0d);
             } else {
                 y = 0.0d;
@@ -160,5 +164,54 @@ public class BaseSignal {
             sum.signal.put(x, y);
         }
         return sum;
+    }
+
+    public void saveToBinary(String name) throws Exception {
+        DataOutputStream out;
+        File file = new File("test.bin");
+        out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
+
+        writeParameters(out);
+        out.close();
+    }
+
+    public void writeParameters(DataOutputStream out) throws Exception {
+        out.writeFloat(t1);
+        out.writeFloat(step);
+        out.writeFloat(d);
+        out.writeBoolean(complex);
+
+        for (double i = t1; Math.round(i * 100.00) / 100.00 <= t1 + d; i += step) {
+            i = Math.round(i * 100.00) / 100.00;
+            out.writeDouble(i);
+            out.writeDouble(signal.get(i));
+        }
+    }
+
+    public void readParameters(DataInputStream in) throws Exception {
+        t1 = 0;
+        step = 0;
+        d = 0;
+        complex = false;
+
+        t1 = in.readFloat();
+        step = in.readFloat();
+        d = in.readFloat();
+        complex = in.readBoolean();
+
+        signal = new HashMap<>();
+        for(double i = t1; Math.round(i * 100.00) / 100.00 <= t1 + d; i += step){
+            signal.put(in.readDouble(), in.readDouble());
+        }
+
+    }
+
+
+    public void readFromBinary(String name) throws Exception {
+        File file = new File("test.bin");
+        DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
+
+        readParameters(in);
+        in.close();
     }
 }

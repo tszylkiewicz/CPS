@@ -199,9 +199,15 @@ public class BaseSignal {
         d = in.readFloat();
         complex = in.readBoolean();
 
+        double x, y;
         signal = new HashMap<>();
-        for(double i = t1; Math.round(i * 100.00) / 100.00 <= t1 + d; i += step){
-            signal.put(in.readDouble(), in.readDouble());
+        for (double i = t1; Math.round(i * 100.00) / 100.00 <= t1 + d; i += step) {
+            x = in.readDouble();
+            y = in.readDouble();
+            if (y > A) {
+                A = (float) y;
+            }
+            signal.put(x, y);
         }
 
     }

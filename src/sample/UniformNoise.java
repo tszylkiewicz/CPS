@@ -20,8 +20,10 @@ public class UniformNoise extends BaseSignal {
             }
             //Gaussian noise
             case 1: {
+                //return x;
                 Random r = new Random();
-                return r.nextGaussian();
+                //return r.nextGaussian();
+                return -A + r.nextGaussian() * (2.0d * A);
             }
             default: {
                 return x;

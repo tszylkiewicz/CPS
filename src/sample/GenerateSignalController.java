@@ -225,7 +225,7 @@ public class GenerateSignalController implements Initializable {
                 signal = new UniformNoise(A, t1, d, 0);
             }
             if (chosenSignal == "Gaussian noise") {
-                //Y = formula.gaussianNoise(X, A);
+                signal = new UniformNoise(A, t1, d, 1);
             }
             if (chosenSignal == "Sine wave") {
                 signal = new SineWave(A, t1, d, T, 0);
@@ -274,6 +274,7 @@ public class GenerateSignalController implements Initializable {
             try {
                 signal.saveToBinary("as");
                 signal.readFromBinary("as");
+                //generateLineChart();
             }catch (Exception ex) {
                Error("Error","Saving error","File cannot be saved properly.");
             }

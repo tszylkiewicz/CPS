@@ -5,12 +5,11 @@ import java.util.Random;
 
 public class ImpulseNoise extends BaseSignal {
 
-    public float f;
     public float p;
 
     public ImpulseNoise(float A, float t1, float d, float f, float p) {
         super(A, t1, d);
-        this.f = f;
+        this.step = f;
         this.p = p;
     }
 

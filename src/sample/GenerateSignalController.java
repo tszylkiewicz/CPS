@@ -9,6 +9,7 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.function.UnaryOperator;
@@ -38,6 +39,13 @@ public class GenerateSignalController implements Initializable {
     public TextField frequency; //f
     public TextField probability; //p
     public TextField sampleNumber; //ns
+
+
+    public Label average;
+    public Label absoluteAverage;
+    public Label variance;
+    public Label rms;
+    public Label effectiveValue;
 
     private Object chosenSignal;
     private Formula formula;
@@ -257,6 +265,9 @@ public class GenerateSignalController implements Initializable {
 
             signal.generateSignal();
 
+            wypelnijDane();
+
+
             if(chosenSignal.toString().toLowerCase().contains("impulse")){
                 generateScatterChart();
             } else {
@@ -279,6 +290,14 @@ public class GenerateSignalController implements Initializable {
                Error("Error","Saving error","File cannot be saved properly.");
             }
         }
+    }
+
+    private void wypelnijDane() {
+        average.setText(Double.toString(signal.average));
+        absoluteAverage.setText(Double.toString(signal.absoluteAverage));
+        variance.setText(Double.toString(signal.variance));
+        rms.setText(Double.toString(signal.rms));
+        effectiveValue.setText(Double.toString(signal.effectiveValue));
     }
 
     private XYChart.Series<Double, Double> createNewDataSeries(){

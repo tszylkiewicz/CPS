@@ -1,5 +1,7 @@
 package sample;
 
+import javafx.fxml.FXML;
+
 import java.util.HashMap;
 import java.io.*;
 
@@ -45,6 +47,7 @@ public class BaseSignal {
         return x;
     }
 
+    @FXML
     public void countAverage() {
         for (Double y : signal.values()
         ) {

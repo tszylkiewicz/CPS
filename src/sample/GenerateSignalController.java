@@ -9,7 +9,6 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 
 import java.net.URL;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.function.UnaryOperator;
@@ -18,29 +17,45 @@ import static javafx.collections.FXCollections.observableArrayList;
 
 public class GenerateSignalController implements Initializable {
 
-    ObservableList<String> signalList = observableArrayList(
+    private ObservableList<String> signalList = observableArrayList(
             "Uniform noise", "Gaussian noise",
             "Sine wave", "Half-wave rectified sine", "Full-wave rectifier sine",
             "Square wave", "Symmetrical square wave", "Triangle wave",
             "Unit step function", "Kronecker impulse", "Impulse noise");
 
-    @FXML
-    private ChoiceBox signalType;
+    private ObservableList<String> operationList = observableArrayList(
+            "Addition", "Subtraction",
+            "Multiplication", "Division");
 
+    private ObservableList<String> chartList = observableArrayList(
+            "Chart 1", "Chart 2",
+            "Chart 3");
+
+    //Choice boxes
+    public ChoiceBox signalType;
+    public ChoiceBox generationChart;
+    public ChoiceBox operationType;
+    public ChoiceBox firstElement;
+    public ChoiceBox secondElement;
+    public ChoiceBox result;
+
+    //Buttons
     public Button chooseSignal;
     public Button generateSignal;
+    public Button calculate;
 
-    public TextField amplitude; //A
+    //Parameters
+    public TextField amplitude;     //A
     public TextField startingPoint; //t1
-    public TextField duration;  //d
-    public TextField period;    //T
-    public TextField dutyCycle; //kw
-    public TextField step; //ts
-    public TextField frequency; //f
-    public TextField probability; //p
-    public TextField sampleNumber; //ns
+    public TextField duration;      //d
+    public TextField period;        //T
+    public TextField dutyCycle;     //kw
+    public TextField step;          //ts
+    public TextField frequency;     //f
+    public TextField probability;   //p
+    public TextField sampleNumber;  //ns
 
-
+    //Chart 1
     public Label average;
     public Label absoluteAverage;
     public Label variance;
@@ -48,20 +63,25 @@ public class GenerateSignalController implements Initializable {
     public Label effectiveValue;
 
     private Object chosenSignal;
-    private Formula formula;
+    private Object chosenChart;
 
+    //Signals
     private BaseSignal signal;
 
     @FXML
     private LineChart<Double, Double> lineChart;
 
     @FXML
-    private ScatterChart<Double,Double> scatterChart;
+    private ScatterChart<Double, Double> scatterChart;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        formula = new Formula();
         signalType.setItems(signalList);
+        generationChart.setItems(chartList);
+        operationType.setItems(operationList);
+        firstElement.setItems(chartList);
+        secondElement.setItems(chartList);
+        result.setItems(chartList);
         UnaryOperator<TextFormatter.Change> filter = new UnaryOperator<TextFormatter.Change>() {
 
             @Override
@@ -198,96 +218,100 @@ public class GenerateSignalController implements Initializable {
 
     @FXML
     private void generateSignal() {
-        if (validateParameter()) {
-            float A = 0, T = 0, t1 = 0, d = 0, kw = 0, ts = 0, f = 0, ns = 0, p = 0;
-            if (amplitude.isVisible()) {
-                A = Float.parseFloat(amplitude.getText());
-            }
-            if (startingPoint.isVisible()) {
-                t1 = Float.parseFloat(startingPoint.getText());
-            }
-            if (period.isVisible()) {
-                T = Float.parseFloat(period.getText());
-            }
-            if (duration.isVisible()) {
-                d = Float.parseFloat(duration.getText());
-            }
-            if (dutyCycle.isVisible()) {
-                kw = Float.parseFloat(dutyCycle.getText());
-            }
-            if (step.isVisible()) {
-                ts = Float.parseFloat(step.getText());
-            }
-            if (frequency.isVisible()) {
-                f = Float.parseFloat(frequency.getText());
-            }
-            if (probability.isVisible()) {
-                p = Float.parseFloat(probability.getText());
-            }
-            if (sampleNumber.isVisible()) {
-                ns = Float.parseFloat(sampleNumber.getText());
-            }
+        if (generationChart == null) {
+            Error("Error", "Chart error", "Chart has to be selected");
+            return;
+        } else {
+            if (validateParameter()) {
+                float A = 0, T = 0, t1 = 0, d = 0, kw = 0, ts = 0, f = 0, ns = 0, p = 0;
+                if (amplitude.isVisible()) {
+                    A = Float.parseFloat(amplitude.getText());
+                }
+                if (startingPoint.isVisible()) {
+                    t1 = Float.parseFloat(startingPoint.getText());
+                }
+                if (period.isVisible()) {
+                    T = Float.parseFloat(period.getText());
+                }
+                if (duration.isVisible()) {
+                    d = Float.parseFloat(duration.getText());
+                }
+                if (dutyCycle.isVisible()) {
+                    kw = Float.parseFloat(dutyCycle.getText());
+                }
+                if (step.isVisible()) {
+                    ts = Float.parseFloat(step.getText());
+                }
+                if (frequency.isVisible()) {
+                    f = Float.parseFloat(frequency.getText());
+                }
+                if (probability.isVisible()) {
+                    p = Float.parseFloat(probability.getText());
+                }
+                if (sampleNumber.isVisible()) {
+                    ns = Float.parseFloat(sampleNumber.getText());
+                }
 
+                int i = 0;
+                if (generationChart.getValue() == "Chart 2") {
+                    i = 1;
+                } else if (generationChart.getValue() == "Chart 3") {
+                    i = 2;
+                }
 
-            if (chosenSignal == "Uniform noise") {
-                signal = new UniformNoise(A, t1, d, 0);
-            }
-            if (chosenSignal == "Gaussian noise") {
-                signal = new UniformNoise(A, t1, d, 1);
-            }
-            if (chosenSignal == "Sine wave") {
-                signal = new SineWave(A, t1, d, T, 0);
-            }
-            if (chosenSignal == "Half-wave rectified sine") {
-                signal = new SineWave(A, t1, d, T, 1);
-            }
-            if (chosenSignal == "Full-wave rectifier sine") {
-                signal = new SineWave(A, t1, d, T, 2);
-            }
-            if (chosenSignal == "Square wave") {
-                signal = new SquareWave(A, t1, d, T, kw, 0);
-            }
-            if (chosenSignal == "Symmetrical square wave") {
-                signal = new SquareWave(A, t1, d, T, kw, 1);
-            }
-            if (chosenSignal == "Triangle wave") {
-                signal = new SquareWave(A, t1, d, T, kw, 2);
-            }
-            if (chosenSignal == "Unit step function") {
-                signal = new UnitStep(A, t1, d, ts);
-            }
-            if (chosenSignal == "Kronecker impulse") {
-                signal = new KroneckerImpulse(A, t1, d, f, ns);
-            }
-            if (chosenSignal == "Impulse noise") {
-                signal = new ImpulseNoise(A, t1, d, f, p);
-            }
+                if (chosenSignal == "Uniform noise") {
+                    signal = new UniformNoise(A, t1, d, 0);
+                }
+                if (chosenSignal == "Gaussian noise") {
+                    signal = new UniformNoise(A, t1, d, 1);
+                }
+                if (chosenSignal == "Sine wave") {
+                    signal = new SineWave(A, t1, d, T, 0);
+                }
+                if (chosenSignal == "Half-wave rectified sine") {
+                    signal = new SineWave(A, t1, d, T, 1);
+                }
+                if (chosenSignal == "Full-wave rectifier sine") {
+                    signal = new SineWave(A, t1, d, T, 2);
+                }
+                if (chosenSignal == "Square wave") {
+                    signal = new SquareWave(A, t1, d, T, kw, 0);
+                }
+                if (chosenSignal == "Symmetrical square wave") {
+                    signal = new SquareWave(A, t1, d, T, kw, 1);
+                }
+                if (chosenSignal == "Triangle wave") {
+                    signal = new SquareWave(A, t1, d, T, kw, 2);
+                }
+                if (chosenSignal == "Unit step function") {
+                    signal = new UnitStep(A, t1, d, ts);
+                }
+                if (chosenSignal == "Kronecker impulse") {
+                    signal = new KroneckerImpulse(A, t1, d, f, ns);
+                }
+                if (chosenSignal == "Impulse noise") {
+                    signal = new ImpulseNoise(A, t1, d, f, p);
+                }
 
-            signal.generateSignal();
+                signal.generateSignal();
+                wypelnijDane();
 
-            wypelnijDane();
-
-
-            if(chosenSignal.toString().toLowerCase().contains("impulse")){
-                generateScatterChart();
-            } else {
-                generateLineChart();
-            }
-            //System.out.println(signal.A);
-            //System.out.println(signal.t1);
-            //System.out.println(signal.d);
-            //System.out.println(signal.signal.keySet());
-            //System.out.println(signal.signal.values());
-            //signal.addition(signal);
-            //signal.subtraction(signal);
-            //signal.multiplication(signal);
-            //signal.division(signal);
-            try {
-                signal.saveToBinary("as");
-                signal.readFromBinary("as");
-                //generateLineChart();
-            }catch (Exception ex) {
-               Error("Error","Saving error","File cannot be saved properly.");
+                if (chosenSignal.toString().toLowerCase().contains("impulse")) {
+                    generateScatterChart();
+                } else {
+                    generateLineChart();
+                }
+                //signal.addition(signal);
+                //signal.subtraction(signal);
+                //signal.multiplication(signal);
+                //signal.division(signal);
+                try {
+                    signal.saveToBinary("as");
+                    signal.readFromBinary("as");
+                    //generateLineChart();
+                } catch (Exception ex) {
+                    Error("Error", "Saving error", "File cannot be saved properly.");
+                }
             }
         }
     }
@@ -300,7 +324,7 @@ public class GenerateSignalController implements Initializable {
         effectiveValue.setText(Double.toString(signal.effectiveValue));
     }
 
-    private XYChart.Series<Double, Double> createNewDataSeries(){
+    private XYChart.Series<Double, Double> createNewDataSeries() {
         XYChart.Series<Double, Double> series = new XYChart.Series<>();
         series.setName(chosenSignal.toString());
 
@@ -313,19 +337,21 @@ public class GenerateSignalController implements Initializable {
     }
 
     public void generateLineChart() {
-         //adding series to the line chart
+        //adding series to the line chart
+        clearAllCharts();
         lineChart.getData().add(createNewDataSeries());
         lineChart.setCreateSymbols(false);
     }
 
     @FXML
-    public void clearAllCharts(){
+    public void clearAllCharts() {
         lineChart.getData().clear();
         scatterChart.getData().clear();
     }
 
     @FXML
-    public void generateScatterChart(){
+    public void generateScatterChart() {
+        clearAllCharts();
         scatterChart.getData().add(createNewDataSeries());
     }
 

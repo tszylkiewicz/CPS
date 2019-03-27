@@ -54,6 +54,7 @@ public class BaseSignal {
             average += y;
         }
         average = average / (double) signal.size();
+        average = Math.round(average * 10000.00) / 10000.00;
     }
 
     public void countAbsoluteAverage() {
@@ -62,6 +63,7 @@ public class BaseSignal {
             absoluteAverage += Math.abs(y);
         }
         absoluteAverage = absoluteAverage / (double) signal.size();
+        absoluteAverage = Math.round(absoluteAverage * 10000.00) / 10000.00;
     }
 
     public void countRms() {
@@ -71,6 +73,7 @@ public class BaseSignal {
         }
         rms = rms / (double) signal.size();
         rms = Math.sqrt(rms);
+        rms = Math.round(rms * 10000.00) / 10000.00;
     }
 
     public void countVariance() {
@@ -79,10 +82,12 @@ public class BaseSignal {
             variance += Math.pow(y - average, 2);
         }
         variance = variance / (double) signal.size();
+        variance = Math.round(variance * 10000.00) / 10000.00;
     }
 
     public void countEffectiveValue() {
         effectiveValue = Math.sqrt(rms);
+        effectiveValue = Math.round(effectiveValue * 10000.00) / 10000.00;
     }
 
     public BaseSignal addition(BaseSignal element) {

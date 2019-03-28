@@ -156,7 +156,7 @@
                 <NumberAxis side="LEFT" />
               </yAxis>
             </ScatterChart>
-            <GridPane layoutX="20.0" layoutY="715.0" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="20.0">
+            <GridPane fx:id="grid1" layoutX="20.0" layoutY="715.0" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="20.0">
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="116.0" minWidth="10.0" prefWidth="111.0" />
                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="95.0" minWidth="10.0" prefWidth="89.0" />
@@ -169,16 +169,6 @@
                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <Label text="Average" />
-                  <Label text="Total average" GridPane.rowIndex="1" />
-                  <Label text="Root Mean Square" GridPane.rowIndex="2" />
-                  <Label text="Variance" GridPane.rowIndex="3" />
-                  <Label text="Effective Value" GridPane.rowIndex="4" />
-                  <Label fx:id="average" GridPane.columnIndex="1" />
-                  <Label fx:id="absoluteAverage" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                  <Label fx:id="rms" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                  <Label fx:id="variance" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                  <Label fx:id="effectiveValue" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                </children>
             </GridPane>
             <Label layoutX="288.0" layoutY="25.0" text="Chart 1" AnchorPane.topAnchor="25.0">
@@ -213,7 +203,7 @@
                   <NumberAxis side="LEFT" />
                </yAxis>
             </ScatterChart>
-            <GridPane layoutX="20.0" layoutY="715.0" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="20.0">
+            <GridPane fx:id="grid3" layoutX="20.0" layoutY="715.0" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="20.0">
                <columnConstraints>
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="116.0" minWidth="10.0" prefWidth="111.0" />
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="95.0" minWidth="10.0" prefWidth="89.0" />
@@ -226,16 +216,6 @@
                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                </rowConstraints>
                <children>
-                  <Label text="Average" />
-                  <Label text="Total average" GridPane.rowIndex="1" />
-                  <Label text="Root Mean Square" GridPane.rowIndex="2" />
-                  <Label text="Variance" GridPane.rowIndex="3" />
-                  <Label text="Effective Value" GridPane.rowIndex="4" />
-                  <Label fx:id="average1" GridPane.columnIndex="1" />
-                  <Label fx:id="absoluteAverage1" prefHeight="25.0" prefWidth="91.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                  <Label fx:id="rms1" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                  <Label fx:id="variance1" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                  <Label fx:id="effectiveValue1" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                </children>
             </GridPane>
             <Label layoutX="288.0" layoutY="25.0" text="Chart 3" AnchorPane.topAnchor="25.0">

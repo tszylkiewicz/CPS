@@ -7,6 +7,7 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.ScatterChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
 
 import java.net.URL;
 import java.util.Map;
@@ -45,28 +46,25 @@ public class GenerateSignalController implements Initializable {
     public Button calculate;
 
     //Parameters
-    public TextField amplitude;     //A
-    public TextField startingPoint; //t1
-    public TextField duration;      //d
-    public TextField period;        //T
-    public TextField dutyCycle;     //kw
-    public TextField step;          //ts
-    public TextField frequency;     //f
-    public TextField probability;   //p
-    public TextField sampleNumber;  //ns
-
-    //Chart 1
-    public Label average;
-    public Label absoluteAverage;
-    public Label variance;
-    public Label rms;
-    public Label effectiveValue;
+    public TextField amplitude;         //A
+    public TextField startingPoint;     //t1
+    public TextField duration;          //d
+    public TextField period;            //T
+    public TextField dutyCycle;         //kw
+    public TextField step;              //ts
+    public TextField frequency;         //f
+    public TextField probability;       //p
+    public TextField sampleNumber;      //ns
 
     private Object chosenSignal;
-    private Object chosenChart;
+
+    //Grids with average values
+    public GridPane grid1;
+    public GridPane grid2;
+    public GridPane grid3;
 
     //Signals
-    private BaseSignal signal;
+    private BaseSignal[] signal;
 
     @FXML
     private LineChart<Double, Double> lineChart;
@@ -76,12 +74,14 @@ public class GenerateSignalController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        //Initialize choice boxes
         signalType.setItems(signalList);
         generationChart.setItems(chartList);
         operationType.setItems(operationList);
         firstElement.setItems(chartList);
         secondElement.setItems(chartList);
         result.setItems(chartList);
+
         UnaryOperator<TextFormatter.Change> filter = new UnaryOperator<TextFormatter.Change>() {
 
             @Override
@@ -105,6 +105,7 @@ public class GenerateSignalController implements Initializable {
                 return t;
             }
         };
+
         amplitude.setTextFormatter(new TextFormatter<>(filter));
         startingPoint.setTextFormatter(new TextFormatter<>(filter));
         duration.setTextFormatter(new TextFormatter<>(filter));
@@ -126,6 +127,8 @@ public class GenerateSignalController implements Initializable {
         sampleNumber.setVisible(false);
         lineChart.setVisible(true);
         scatterChart.setVisible(false);
+
+        signal = new BaseSignal[3];
     }
 
     @FXML
@@ -260,68 +263,83 @@ public class GenerateSignalController implements Initializable {
                 }
 
                 if (chosenSignal == "Uniform noise") {
-                    signal = new UniformNoise(A, t1, d, 0);
+                    signal[i] = new UniformNoise(A, t1, d, 0);
                 }
                 if (chosenSignal == "Gaussian noise") {
-                    signal = new UniformNoise(A, t1, d, 1);
+                    signal[i] = new UniformNoise(A, t1, d, 1);
                 }
                 if (chosenSignal == "Sine wave") {
-                    signal = new SineWave(A, t1, d, T, 0);
+                    signal[i] = new SineWave(A, t1, d, T, 0);
                 }
                 if (chosenSignal == "Half-wave rectified sine") {
-                    signal = new SineWave(A, t1, d, T, 1);
+                    signal[i] = new SineWave(A, t1, d, T, 1);
                 }
                 if (chosenSignal == "Full-wave rectifier sine") {
-                    signal = new SineWave(A, t1, d, T, 2);
+                    signal[i] = new SineWave(A, t1, d, T, 2);
                 }
                 if (chosenSignal == "Square wave") {
-                    signal = new SquareWave(A, t1, d, T, kw, 0);
+                    signal[i] = new SquareWave(A, t1, d, T, kw, 0);
                 }
                 if (chosenSignal == "Symmetrical square wave") {
-                    signal = new SquareWave(A, t1, d, T, kw, 1);
+                    signal[i] = new SquareWave(A, t1, d, T, kw, 1);
                 }
                 if (chosenSignal == "Triangle wave") {
-                    signal = new SquareWave(A, t1, d, T, kw, 2);
+                    signal[i] = new SquareWave(A, t1, d, T, kw, 2);
                 }
                 if (chosenSignal == "Unit step function") {
-                    signal = new UnitStep(A, t1, d, ts);
+                    signal[i] = new UnitStep(A, t1, d, ts);
                 }
                 if (chosenSignal == "Kronecker impulse") {
-                    signal = new KroneckerImpulse(A, t1, d, f, ns);
+                    signal[i] = new KroneckerImpulse(A, t1, d, f, ns);
                 }
                 if (chosenSignal == "Impulse noise") {
-                    signal = new ImpulseNoise(A, t1, d, f, p);
+                    signal[i] = new ImpulseNoise(A, t1, d, f, p);
                 }
 
-                signal.generateSignal();
-                wypelnijDane();
+                signal[i].generateSignal();
+
+                if (i == 1) {
+                    wypelnijDane(grid2, i);
+                } else if (i == 2) {
+                    wypelnijDane(grid3, i);
+                }else {
+                    wypelnijDane(grid1, i);
+                }
 
                 if (chosenSignal.toString().toLowerCase().contains("impulse")) {
                     generateScatterChart();
                 } else {
                     generateLineChart();
                 }
+
                 //signal.addition(signal);
                 //signal.subtraction(signal);
                 //signal.multiplication(signal);
                 //signal.division(signal);
-                try {
-                    signal.saveToBinary("as");
-                    signal.readFromBinary("as");
+                /*try {
+                    signal[i].saveToBinary("as");
+                    signal[i].readFromBinary("as");
                     //generateLineChart();
                 } catch (Exception ex) {
                     Error("Error", "Saving error", "File cannot be saved properly.");
-                }
+                }*/
             }
         }
     }
 
-    private void wypelnijDane() {
-        average.setText(Double.toString(signal.average));
-        absoluteAverage.setText(Double.toString(signal.absoluteAverage));
-        variance.setText(Double.toString(signal.variance));
-        rms.setText(Double.toString(signal.rms));
-        effectiveValue.setText(Double.toString(signal.effectiveValue));
+    private void wypelnijDane(GridPane grid, int i) {
+        grid.getChildren().clear();
+        grid.add(new Label("Average:"), 0, 0);
+        grid.add(new Label("Absolute average:"), 0, 1);
+        grid.add(new Label("Root mean square:"), 0, 2);
+        grid.add(new Label("Variance:"), 0, 3);
+        grid.add(new Label("Effective value:"), 0, 4);
+
+        grid.add(new Label(Double.toString(signal[i].average)), 1, 0);
+        grid.add(new Label(Double.toString(signal[i].absoluteAverage)), 1, 1);
+        grid.add(new Label(Double.toString(signal[i].rms)), 1, 2);
+        grid.add(new Label(Double.toString(signal[i].variance)), 1, 3);
+        grid.add(new Label(Double.toString(signal[i].effectiveValue)), 1, 4);
     }
 
     private XYChart.Series<Double, Double> createNewDataSeries() {
@@ -329,7 +347,7 @@ public class GenerateSignalController implements Initializable {
         series.setName(chosenSignal.toString());
 
         //adding data from signals to series
-        for (Map.Entry<Double, Double> entry : signal.signal.entrySet()) {
+        for (Map.Entry<Double, Double> entry : signal[0].signal.entrySet()) {
             series.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue()));
         }
 

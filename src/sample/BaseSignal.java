@@ -21,6 +21,8 @@ public class BaseSignal {
     public double variance;
     public double effectiveValue;
 
+    public BaseSignal() { }
+
     public BaseSignal(float A, float t1, float d) {
         this.A = A;
         this.t1 = t1;
@@ -47,7 +49,6 @@ public class BaseSignal {
         return x;
     }
 
-    @FXML
     public void countAverage() {
         for (Double y : signal.values()
         ) {
@@ -187,7 +188,7 @@ public class BaseSignal {
             if (element.signal.getOrDefault(x, 0.0d) != 0.0d) {
                 y = signal.getOrDefault(x, 0.0d) / element.signal.getOrDefault(x, 0.0d);
             } else {
-                y = 0.0d;
+                y = signal.getOrDefault(x, 0.0d) / 0.00000000001d;
             }
             y = Math.round(y * 100000.00) / 100000.00;
             sum.signal.put(x, y);
@@ -202,13 +203,18 @@ public class BaseSignal {
         return sum;
     }
 
-    public void saveToBinary(String name) throws Exception {
-        DataOutputStream out;
-        File file = new File("test.bin");
-        out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
+    public void saveToBinary(File file) throws Exception {
+        DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
 
         writeParameters(out);
         out.close();
+    }
+
+    public void readFromBinary(File file) throws Exception {
+        System.out.println("siema");
+        DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
+        readParameters(in);
+        in.close();
     }
 
     public void writeParameters(DataOutputStream out) throws Exception {
@@ -245,15 +251,10 @@ public class BaseSignal {
             }
             signal.put(x, y);
         }
-
-    }
-
-
-    public void readFromBinary(String name) throws Exception {
-        File file = new File("test.bin");
-        DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
-
-        readParameters(in);
-        in.close();
+        countAverage();
+        countAbsoluteAverage();
+        countRms();
+        countVariance();
+        countEffectiveValue();
     }
 }

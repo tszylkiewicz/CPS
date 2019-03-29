@@ -11,7 +11,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception{
         Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
-        primaryStage.setTitle("Cyfrowe przetwarzanie sygnału");
+        primaryStage.setTitle("Digital signal processing");
         primaryStage.setScene(new Scene(root, 1280, 720));
         primaryStage.show();
     }

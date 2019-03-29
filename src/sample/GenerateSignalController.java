@@ -3,12 +3,15 @@ package sample;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.ScatterChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.stage.FileChooser;
 
+import java.io.File;
 import java.net.URL;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -18,20 +21,6 @@ import static javafx.collections.FXCollections.observableArrayList;
 
 public class GenerateSignalController implements Initializable {
 
-    private ObservableList<String> signalList = observableArrayList(
-            "Uniform noise", "Gaussian noise",
-            "Sine wave", "Half-wave rectified sine", "Full-wave rectifier sine",
-            "Square wave", "Symmetrical square wave", "Triangle wave",
-            "Unit step function", "Kronecker impulse", "Impulse noise");
-
-    private ObservableList<String> operationList = observableArrayList(
-            "Addition", "Subtraction",
-            "Multiplication", "Division");
-
-    private ObservableList<String> chartList = observableArrayList(
-            "Chart 1", "Chart 2",
-            "Chart 3");
-
     //Choice boxes
     public ChoiceBox signalType;
     public ChoiceBox generationChart;
@@ -39,11 +28,6 @@ public class GenerateSignalController implements Initializable {
     public ChoiceBox firstElement;
     public ChoiceBox secondElement;
     public ChoiceBox result;
-
-    //Buttons
-    public Button chooseSignal;
-    public Button generateSignal;
-    public Button calculate;
 
     //Parameters
     public TextField amplitude;         //A
@@ -56,29 +40,26 @@ public class GenerateSignalController implements Initializable {
     public TextField probability;       //p
     public TextField sampleNumber;      //ns
 
-    private Object chosenSignal;
-
     //Grids with average values
     public GridPane grid1;
     public GridPane grid2;
     public GridPane grid3;
 
+    //Line charts
+    public LineChart<Double, Double> lineChart1;
+    public LineChart<Double, Double> lineChart2;
+    public LineChart<Double, Double> lineChart3;
+
+    //ScatterCharts
+    public ScatterChart<Double, Double> scatterChart1;
+    public ScatterChart<Double, Double> scatterChart2;
+    public ScatterChart<Double, Double> scatterChart3;
+
+    //Signal chosen in choice box
+    private Object chosenSignal;
+
     //Signals
     private BaseSignal[] signal;
-
-    @FXML
-    private LineChart<Double, Double> lineChart1;
-    @FXML
-    private LineChart<Double, Double> lineChart2;
-    @FXML
-    private LineChart<Double, Double> lineChart3;
-
-    @FXML
-    private ScatterChart<Double, Double> scatterChart1;
-    @FXML
-    private ScatterChart<Double, Double> scatterChart2;
-    @FXML
-    private ScatterChart<Double, Double> scatterChart3;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -248,23 +229,21 @@ public class GenerateSignalController implements Initializable {
                 } else {
                     generateLineChart(i);
                 }
-
-                /*try {
-                    signal[i].saveToBinary("as");
-                    signal[i].readFromBinary("as");
-                    //generateLineChart();
-                } catch (Exception ex) {
-                    Error("Error", "Saving error", "File cannot be saved properly.");
-                }*/
             }
         }
     }
 
     @FXML
     private void calculate() {
+        if (firstElement.getValue() == null || secondElement.getValue() == null || result.getValue() == null) {
+            Error("Error", "Calculation error", "All calculation components must be declared.");
+            return;
+        }
+
         int first = getIndex(firstElement.getValue().toString());
         int second = getIndex(secondElement.getValue().toString());
         int res = getIndex(result.getValue().toString());
+
         if (operationType.getValue() == "Addition") {
             signal[res] = signal[first].addition(signal[second]);
         }
@@ -285,19 +264,55 @@ public class GenerateSignalController implements Initializable {
         }
     }
 
-    private void wypelnijDane(GridPane grid, int i) {
-        grid.getChildren().clear();
-        grid.add(new Label("Average:"), 0, 0);
-        grid.add(new Label("Absolute average:"), 0, 1);
-        grid.add(new Label("Root mean square:"), 0, 2);
-        grid.add(new Label("Variance:"), 0, 3);
-        grid.add(new Label("Effective value:"), 0, 4);
+    @FXML
+    private void clearChart1() {
+        lineChart1.getData().clear();
+        scatterChart1.getData().clear();
+        grid1.getChildren().clear();
+    }
 
-        grid.add(new Label(Double.toString(signal[i].average)), 1, 0);
-        grid.add(new Label(Double.toString(signal[i].absoluteAverage)), 1, 1);
-        grid.add(new Label(Double.toString(signal[i].rms)), 1, 2);
-        grid.add(new Label(Double.toString(signal[i].variance)), 1, 3);
-        grid.add(new Label(Double.toString(signal[i].effectiveValue)), 1, 4);
+    @FXML
+    private void clearChart2() {
+        lineChart2.getData().clear();
+        scatterChart2.getData().clear();
+        grid2.getChildren().clear();
+    }
+
+    @FXML
+    private void clearChart3() {
+        lineChart3.getData().clear();
+        scatterChart3.getData().clear();
+        grid3.getChildren().clear();
+    }
+
+    @FXML
+    private void saveChart1() {
+        saveChart(0);
+    }
+
+    @FXML
+    private void saveChart2() {
+        saveChart(1);
+    }
+
+    @FXML
+    private void saveChart3() {
+        saveChart(2);
+    }
+
+    @FXML
+    private void openChart1() {
+        openChart(0);
+    }
+
+    @FXML
+    private void openChart2() {
+        openChart(1);
+    }
+
+    @FXML
+    private void openChart3() {
+        openChart(2);
     }
 
     private XYChart.Series<Double, Double> createNewDataSeries(int i) {
@@ -321,7 +336,7 @@ public class GenerateSignalController implements Initializable {
                 scatterChart1.setVisible(false);
                 lineChart1.getData().add(createNewDataSeries(i));
                 lineChart1.setCreateSymbols(false);
-                wypelnijDane(grid1, i);
+                filData(grid1, i);
                 break;
             }
             case 1: {
@@ -331,7 +346,7 @@ public class GenerateSignalController implements Initializable {
                 scatterChart2.setVisible(false);
                 lineChart2.getData().add(createNewDataSeries(i));
                 lineChart2.setCreateSymbols(false);
-                wypelnijDane(grid2, i);
+                filData(grid2, i);
                 break;
             }
             case 2: {
@@ -341,7 +356,7 @@ public class GenerateSignalController implements Initializable {
                 scatterChart3.setVisible(false);
                 lineChart3.getData().add(createNewDataSeries(i));
                 lineChart3.setCreateSymbols(false);
-                wypelnijDane(grid3, i);
+                filData(grid3, i);
                 break;
             }
             default: {
@@ -358,7 +373,7 @@ public class GenerateSignalController implements Initializable {
                 lineChart1.setVisible(false);
                 scatterChart1.setVisible(true);
                 scatterChart1.getData().add(createNewDataSeries(i));
-                wypelnijDane(grid1, i);
+                filData(grid1, i);
                 break;
             }
             case 1: {
@@ -366,7 +381,7 @@ public class GenerateSignalController implements Initializable {
                 lineChart2.setVisible(false);
                 scatterChart2.setVisible(true);
                 scatterChart2.getData().add(createNewDataSeries(i));
-                wypelnijDane(grid2, i);
+                filData(grid2, i);
                 break;
             }
             case 2: {
@@ -374,13 +389,87 @@ public class GenerateSignalController implements Initializable {
                 lineChart3.setVisible(false);
                 scatterChart3.setVisible(true);
                 scatterChart3.getData().add(createNewDataSeries(i));
-                wypelnijDane(grid3, i);
+                filData(grid3, i);
                 break;
             }
             default: {
                 Error("Error", "Generating signal error", "Generating signal error");
                 break;
             }
+        }
+    }
+
+    private void filData(GridPane grid, int i) {
+        grid.getChildren().clear();
+        grid.add(new Label("Average:"), 0, 0);
+        grid.add(new Label("Absolute average:"), 0, 1);
+        grid.add(new Label("Root mean square:"), 0, 2);
+        grid.add(new Label("Variance:"), 0, 3);
+        grid.add(new Label("Effective value:"), 0, 4);
+
+        grid.add(new Label(Double.toString(signal[i].average)), 1, 0);
+        grid.add(new Label(Double.toString(signal[i].absoluteAverage)), 1, 1);
+        grid.add(new Label(Double.toString(signal[i].rms)), 1, 2);
+        grid.add(new Label(Double.toString(signal[i].variance)), 1, 3);
+        grid.add(new Label(Double.toString(signal[i].effectiveValue)), 1, 4);
+    }
+
+    private int getIndex(String name) {
+        if (name == "Chart 1") {
+            return 0;
+        } else if (name == "Chart 2") {
+            return 1;
+        } else {
+            return 2;
+        }
+    }
+
+    private void saveChart(int i) {
+        FileChooser fileChooser = new FileChooser();
+
+        //Set extension filter
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Binary files (*.bin)", "*.bin");
+        fileChooser.getExtensionFilters().add(extFilter);
+
+        //Show save file dialog
+        File file = fileChooser.showSaveDialog(amplitude.getScene().getWindow());
+
+        if (file != null) {
+            try {
+                if(signal[i] == null) {
+                    throw new Exception();
+                }
+                signal[i].saveToBinary(file);
+            } catch (Exception ex) {
+                Error("Error", "Saving error", "File cannot be saved properly.");
+            }
+        }
+    }
+
+    private void openChart(int i) {
+        FileChooser fileChooser = new FileChooser();
+
+        //Set extension filter
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Binary files (*.bin)", "*.bin");
+        fileChooser.getExtensionFilters().add(extFilter);
+
+        //Show save file dialog
+        File file = fileChooser.showOpenDialog(amplitude.getScene().getWindow());
+
+        if (file != null) {
+            try {
+                if(signal[i] == null) {
+                    signal[i] = new BaseSignal();
+                }
+                signal[i].readFromBinary(file);
+            } catch (Exception ex) {
+                Error("Error", "Opening error", "File cannot be opened properly.");
+            }
+        }
+        if (chosenSignal.toString().toLowerCase().contains("impulse")) {
+            generateScatterChart(i);
+        } else {
+            generateLineChart(i);
         }
     }
 
@@ -421,34 +510,17 @@ public class GenerateSignalController implements Initializable {
         sampleNumber.setVisible(ns);
     }
 
-    @FXML
-    private void clearChart1() {
-        lineChart1.getData().clear();
-        scatterChart1.getData().clear();
-        grid1.getChildren().clear();
-    }
+    private ObservableList<String> signalList = observableArrayList(
+            "Uniform noise", "Gaussian noise",
+            "Sine wave", "Half-wave rectified sine", "Full-wave rectifier sine",
+            "Square wave", "Symmetrical square wave", "Triangle wave",
+            "Unit step function", "Kronecker impulse", "Impulse noise");
 
-    @FXML
-    private void clearChart2() {
-        lineChart2.getData().clear();
-        scatterChart2.getData().clear();
-        grid2.getChildren().clear();
-    }
+    private ObservableList<String> operationList = observableArrayList(
+            "Addition", "Subtraction",
+            "Multiplication", "Division");
 
-    @FXML
-    private void clearChart3() {
-        lineChart3.getData().clear();
-        scatterChart3.getData().clear();
-        grid3.getChildren().clear();
-    }
-
-    private int getIndex(String name) {
-        if(name == "Chart 1") {
-            return 0;
-        }else if(name == "Chart 2") {
-            return 1;
-        }else {
-            return 2;
-        }
-    }
+    private ObservableList<String> chartList = observableArrayList(
+            "Chart 1", "Chart 2",
+            "Chart 3");
 }

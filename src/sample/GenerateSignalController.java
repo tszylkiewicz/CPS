@@ -67,10 +67,18 @@ public class GenerateSignalController implements Initializable {
     private BaseSignal[] signal;
 
     @FXML
-    private LineChart<Double, Double> lineChart;
+    private LineChart<Double, Double> lineChart1;
+    @FXML
+    private LineChart<Double, Double> lineChart2;
+    @FXML
+    private LineChart<Double, Double> lineChart3;
 
     @FXML
-    private ScatterChart<Double, Double> scatterChart;
+    private ScatterChart<Double, Double> scatterChart1;
+    @FXML
+    private ScatterChart<Double, Double> scatterChart2;
+    @FXML
+    private ScatterChart<Double, Double> scatterChart3;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -116,17 +124,14 @@ public class GenerateSignalController implements Initializable {
         probability.setTextFormatter(new TextFormatter<>(filter));
         sampleNumber.setTextFormatter(new TextFormatter<>(filter));
 
-        amplitude.setVisible(false);
-        startingPoint.setVisible(false);
-        duration.setVisible(false);
-        period.setVisible(false);
-        dutyCycle.setVisible(false);
-        step.setVisible(false);
-        frequency.setVisible(false);
-        probability.setVisible(false);
-        sampleNumber.setVisible(false);
-        lineChart.setVisible(true);
-        scatterChart.setVisible(false);
+        setParametersVisibility(false, false, false, false, false, false, false, false, false);
+
+        lineChart1.setVisible(true);
+        lineChart2.setVisible(true);
+        lineChart3.setVisible(true);
+        scatterChart1.setVisible(false);
+        scatterChart2.setVisible(false);
+        scatterChart3.setVisible(false);
 
         signal = new BaseSignal[3];
     }
@@ -139,82 +144,22 @@ public class GenerateSignalController implements Initializable {
         } else {
             //A, t1, d
             if (chosenSignal == "Uniform noise" || chosenSignal == "Gaussian noise") {
-                amplitude.setVisible(true);
-                startingPoint.setVisible(true);
-                duration.setVisible(true);
-                period.setVisible(false);
-                dutyCycle.setVisible(false);
-                step.setVisible(false);
-                frequency.setVisible(false);
-                probability.setVisible(false);
-                sampleNumber.setVisible(false);
-                lineChart.setVisible(true);
-                scatterChart.setVisible(false);
+                setParametersVisibility(true, true, true, false, false, false, false, false, false);
                 //A, T, t1, d
             } else if (chosenSignal == "Sine wave" || chosenSignal == "Half-wave rectified sine" || chosenSignal == "Full-wave rectifier sine") {
-                amplitude.setVisible(true);
-                startingPoint.setVisible(true);
-                duration.setVisible(true);
-                period.setVisible(true);
-                dutyCycle.setVisible(false);
-                step.setVisible(false);
-                frequency.setVisible(false);
-                probability.setVisible(false);
-                sampleNumber.setVisible(false);
-                lineChart.setVisible(true);
-                scatterChart.setVisible(false);
+                setParametersVisibility(true, true, true, true, false, false, false, false, false);
                 //A, T, t1, d, kw
             } else if (chosenSignal == "Square wave" || chosenSignal == "Symmetrical square wave" || chosenSignal == "Triangle wave") {
-                amplitude.setVisible(true);
-                startingPoint.setVisible(true);
-                duration.setVisible(true);
-                period.setVisible(true);
-                dutyCycle.setVisible(true);
-                step.setVisible(false);
-                frequency.setVisible(false);
-                probability.setVisible(false);
-                sampleNumber.setVisible(false);
-                lineChart.setVisible(true);
-                scatterChart.setVisible(false);
+                setParametersVisibility(true, true, true, true, true, false, false, false, false);
                 //A, t1, d, ts
             } else if (chosenSignal == "Unit step function") {
-                amplitude.setVisible(true);
-                startingPoint.setVisible(true);
-                duration.setVisible(true);
-                period.setVisible(false);
-                dutyCycle.setVisible(false);
-                step.setVisible(true);
-                frequency.setVisible(false);
-                probability.setVisible(false);
-                sampleNumber.setVisible(false);
-                lineChart.setVisible(true);
-                scatterChart.setVisible(false);
+                setParametersVisibility(true, true, true, false, false, true, false, false, false);
                 //A, t1, d, f, ns
             } else if (chosenSignal == "Kronecker impulse") {
-                amplitude.setVisible(true);
-                startingPoint.setVisible(true);
-                duration.setVisible(true);
-                period.setVisible(false);
-                dutyCycle.setVisible(false);
-                step.setVisible(false);
-                frequency.setVisible(true);
-                probability.setVisible(false);
-                sampleNumber.setVisible(true);
-                lineChart.setVisible(false);
-                scatterChart.setVisible(true);
+                setParametersVisibility(true, true, true, false, false, false, true, false, true);
                 //A, t1, d, f, p
             } else if (chosenSignal == "Impulse noise") {
-                amplitude.setVisible(true);
-                startingPoint.setVisible(true);
-                duration.setVisible(true);
-                period.setVisible(false);
-                dutyCycle.setVisible(false);
-                step.setVisible(false);
-                frequency.setVisible(true);
-                probability.setVisible(true);
-                sampleNumber.setVisible(false);
-                lineChart.setVisible(false);
-                scatterChart.setVisible(true);
+                setParametersVisibility(true, true, true, false, false, false, true, true, false);
             }
         }
     }
@@ -298,24 +243,12 @@ public class GenerateSignalController implements Initializable {
 
                 signal[i].generateSignal();
 
-                if (i == 1) {
-                    wypelnijDane(grid2, i);
-                } else if (i == 2) {
-                    wypelnijDane(grid3, i);
-                }else {
-                    wypelnijDane(grid1, i);
-                }
-
                 if (chosenSignal.toString().toLowerCase().contains("impulse")) {
-                    generateScatterChart();
+                    generateScatterChart(i);
                 } else {
-                    generateLineChart();
+                    generateLineChart(i);
                 }
 
-                //signal.addition(signal);
-                //signal.subtraction(signal);
-                //signal.multiplication(signal);
-                //signal.division(signal);
                 /*try {
                     signal[i].saveToBinary("as");
                     signal[i].readFromBinary("as");
@@ -324,6 +257,31 @@ public class GenerateSignalController implements Initializable {
                     Error("Error", "Saving error", "File cannot be saved properly.");
                 }*/
             }
+        }
+    }
+
+    @FXML
+    private void calculate() {
+        int first = getIndex(firstElement.getValue().toString());
+        int second = getIndex(secondElement.getValue().toString());
+        int res = getIndex(result.getValue().toString());
+        if (operationType.getValue() == "Addition") {
+            signal[res] = signal[first].addition(signal[second]);
+        }
+        if (operationType.getValue() == "Subtraction") {
+            signal[res] = signal[first].subtraction(signal[second]);
+        }
+        if (operationType.getValue() == "Multiplication") {
+            signal[res] = signal[first].multiplication(signal[second]);
+        }
+        if (operationType.getValue() == "Division") {
+            signal[res] = signal[first].division(signal[second]);
+        }
+
+        if (chosenSignal.toString().toLowerCase().contains("impulse")) {
+            generateScatterChart(res);
+        } else {
+            generateLineChart(res);
         }
     }
 
@@ -342,37 +300,89 @@ public class GenerateSignalController implements Initializable {
         grid.add(new Label(Double.toString(signal[i].effectiveValue)), 1, 4);
     }
 
-    private XYChart.Series<Double, Double> createNewDataSeries() {
+    private XYChart.Series<Double, Double> createNewDataSeries(int i) {
         XYChart.Series<Double, Double> series = new XYChart.Series<>();
         series.setName(chosenSignal.toString());
 
         //adding data from signals to series
-        for (Map.Entry<Double, Double> entry : signal[0].signal.entrySet()) {
+        for (Map.Entry<Double, Double> entry : signal[i].signal.entrySet()) {
             series.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue()));
         }
 
         return series;
     }
 
-    public void generateLineChart() {
-        //adding series to the line chart
-        clearAllCharts();
-        lineChart.getData().add(createNewDataSeries());
-        lineChart.setCreateSymbols(false);
+    private void generateLineChart(int i) {
+        switch (i) {
+            case 0: {
+                //adding series to the line chart
+                clearChart1();
+                lineChart1.setVisible(true);
+                scatterChart1.setVisible(false);
+                lineChart1.getData().add(createNewDataSeries(i));
+                lineChart1.setCreateSymbols(false);
+                wypelnijDane(grid1, i);
+                break;
+            }
+            case 1: {
+                //adding series to the line chart
+                clearChart2();
+                lineChart2.setVisible(true);
+                scatterChart2.setVisible(false);
+                lineChart2.getData().add(createNewDataSeries(i));
+                lineChart2.setCreateSymbols(false);
+                wypelnijDane(grid2, i);
+                break;
+            }
+            case 2: {
+                //adding series to the line chart
+                clearChart3();
+                lineChart3.setVisible(true);
+                scatterChart3.setVisible(false);
+                lineChart3.getData().add(createNewDataSeries(i));
+                lineChart3.setCreateSymbols(false);
+                wypelnijDane(grid3, i);
+                break;
+            }
+            default: {
+                Error("Error", "Generating signal error", "Generating signal error");
+                break;
+            }
+        }
     }
 
-    @FXML
-    public void clearAllCharts() {
-        lineChart.getData().clear();
-        scatterChart.getData().clear();
+    private void generateScatterChart(int i) {
+        switch (i) {
+            case 0: {
+                clearChart1();
+                lineChart1.setVisible(false);
+                scatterChart1.setVisible(true);
+                scatterChart1.getData().add(createNewDataSeries(i));
+                wypelnijDane(grid1, i);
+                break;
+            }
+            case 1: {
+                clearChart2();
+                lineChart2.setVisible(false);
+                scatterChart2.setVisible(true);
+                scatterChart2.getData().add(createNewDataSeries(i));
+                wypelnijDane(grid2, i);
+                break;
+            }
+            case 2: {
+                clearChart3();
+                lineChart3.setVisible(false);
+                scatterChart3.setVisible(true);
+                scatterChart3.getData().add(createNewDataSeries(i));
+                wypelnijDane(grid3, i);
+                break;
+            }
+            default: {
+                Error("Error", "Generating signal error", "Generating signal error");
+                break;
+            }
+        }
     }
-
-    @FXML
-    public void generateScatterChart() {
-        clearAllCharts();
-        scatterChart.getData().add(createNewDataSeries());
-    }
-
 
     private void Error(String title, String header, String content) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -397,5 +407,48 @@ public class GenerateSignalController implements Initializable {
             return false;
         }
         return true;
+    }
+
+    private void setParametersVisibility(boolean a, boolean t1, boolean d, boolean T, boolean kw, boolean ts, boolean f, boolean p, boolean ns) {
+        amplitude.setVisible(a);
+        startingPoint.setVisible(t1);
+        duration.setVisible(d);
+        period.setVisible(T);
+        dutyCycle.setVisible(kw);
+        step.setVisible(ts);
+        frequency.setVisible(f);
+        probability.setVisible(p);
+        sampleNumber.setVisible(ns);
+    }
+
+    @FXML
+    private void clearChart1() {
+        lineChart1.getData().clear();
+        scatterChart1.getData().clear();
+        grid1.getChildren().clear();
+    }
+
+    @FXML
+    private void clearChart2() {
+        lineChart2.getData().clear();
+        scatterChart2.getData().clear();
+        grid2.getChildren().clear();
+    }
+
+    @FXML
+    private void clearChart3() {
+        lineChart3.getData().clear();
+        scatterChart3.getData().clear();
+        grid3.getChildren().clear();
+    }
+
+    private int getIndex(String name) {
+        if(name == "Chart 1") {
+            return 0;
+        }else if(name == "Chart 2") {
+            return 1;
+        }else {
+            return 2;
+        }
     }
 }

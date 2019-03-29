@@ -107,6 +107,13 @@ public class BaseSignal {
             y = Math.round(y * 100000.00) / 100000.00;
             sum.signal.put(x, y);
         }
+
+        sum.countAverage();
+        sum.countAbsoluteAverage();
+        sum.countRms();
+        sum.countVariance();
+        sum.countEffectiveValue();
+
         return sum;
     }
 
@@ -127,6 +134,13 @@ public class BaseSignal {
             y = Math.round(y * 100000.00) / 100000.00;
             sum.signal.put(x, y);
         }
+
+        sum.countAverage();
+        sum.countAbsoluteAverage();
+        sum.countRms();
+        sum.countVariance();
+        sum.countEffectiveValue();
+
         return sum;
     }
 
@@ -147,6 +161,13 @@ public class BaseSignal {
             y = Math.round(y * 100000.00) / 100000.00;
             sum.signal.put(x, y);
         }
+
+        sum.countAverage();
+        sum.countAbsoluteAverage();
+        sum.countRms();
+        sum.countVariance();
+        sum.countEffectiveValue();
+
         return sum;
     }
 
@@ -171,6 +192,13 @@ public class BaseSignal {
             y = Math.round(y * 100000.00) / 100000.00;
             sum.signal.put(x, y);
         }
+
+        sum.countAverage();
+        sum.countAbsoluteAverage();
+        sum.countRms();
+        sum.countVariance();
+        sum.countEffectiveValue();
+
         return sum;
     }
 

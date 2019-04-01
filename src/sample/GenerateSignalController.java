@@ -3,7 +3,7 @@ package sample;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
+import javafx.scene.chart.BarChart;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.ScatterChart;
 import javafx.scene.chart.XYChart;
@@ -49,6 +49,9 @@ public class GenerateSignalController implements Initializable {
     public LineChart<Double, Double> lineChart1;
     public LineChart<Double, Double> lineChart2;
     public LineChart<Double, Double> lineChart3;
+
+    //Histogram
+    public BarChart<String,Number> histogram1;
 
     //ScatterCharts
     public ScatterChart<Double, Double> scatterChart1;
@@ -234,6 +237,14 @@ public class GenerateSignalController implements Initializable {
     }
 
     @FXML
+    private void generateHistogramDiagram() throws Exception {
+        signal[0].getDataForHistogram(5);
+
+        generateHistogram(0);
+
+    }
+
+    @FXML
     private void calculate() {
         if (firstElement.getValue() == null || secondElement.getValue() == null || result.getValue() == null) {
             Error("Error", "Calculation error", "All calculation components must be declared.");
@@ -327,6 +338,22 @@ public class GenerateSignalController implements Initializable {
         return series;
     }
 
+    private XYChart.Series<String, Number> createNewDataSeriesBarChart(int i) {
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.setName("Histogram " + i );
+
+//        Double minValue = signal[i].minValueHist;
+//        Double scope = signal[i].scope;
+//        Double startPoint = minValue;
+
+        //adding data from signals to series
+        for (int j = 0; j < signal[i].tablicaWartosciHisgoram.length; j++) {
+            series.getData().add(new XYChart.Data("Period " + j, signal[i].tablicaWartosciHisgoram[j]));
+        }
+
+        return series;
+    }
+
     private void generateLineChart(int i) {
         switch (i) {
             case 0: {
@@ -390,6 +417,36 @@ public class GenerateSignalController implements Initializable {
                 scatterChart3.setVisible(true);
                 scatterChart3.getData().add(createNewDataSeries(i));
                 filData(grid3, i);
+                break;
+            }
+            default: {
+                Error("Error", "Generating signal error", "Generating signal error");
+                break;
+            }
+        }
+    }
+
+    private void generateHistogram(int i) {
+        switch (i) {
+            case 0: {
+                histogram1.setVisible(true);
+                histogram1.getData().add(createNewDataSeriesBarChart(i));
+                break;
+            }
+            case 1: {
+//                clearChart2();
+//                lineChart2.setVisible(false);
+//                scatterChart2.setVisible(true);
+//                scatterChart2.getData().add(createNewDataSeries(i));
+//                filData(grid2, i);
+                break;
+            }
+            case 2: {
+//                clearChart3();
+//                lineChart3.setVisible(false);
+//                scatterChart3.setVisible(true);
+//                scatterChart3.getData().add(createNewDataSeries(i));
+//                filData(grid3, i);
                 break;
             }
             default: {

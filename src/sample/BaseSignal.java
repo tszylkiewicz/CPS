@@ -21,6 +21,12 @@ public class BaseSignal {
     public double variance;
     public double effectiveValue;
 
+    //histogram parameters
+    public int[] tablicaWartosciHisgoram;
+    public double minValueHist;
+    public double maxValueHist;
+    public double scope;
+
     public BaseSignal() { }
 
     public BaseSignal(float A, float t1, float d) {
@@ -256,5 +262,65 @@ public class BaseSignal {
         countRms();
         countVariance();
         countEffectiveValue();
+    }
+
+
+
+    public void getDataForHistogram(int numberOfParts) throws Exception {
+        System.out.println(signal.entrySet() + "\n" + signal.values());
+
+        minValueHist = getMinValue();
+        maxValueHist = getMaxValue();
+
+        double amplitudeValue = Math.abs(minValueHist) + Math.abs(maxValueHist);
+        scope = amplitudeValue / numberOfParts;
+        tablicaWartosciHisgoram = new int[numberOfParts];
+
+
+        for (double val : signal.values()) {
+            int index = checksScopeForValues(val, minValueHist, maxValueHist, scope, numberOfParts);
+            tablicaWartosciHisgoram[index] = tablicaWartosciHisgoram[index] + 1;
+        }
+
+    }
+
+    private int checksScopeForValues(double val, double minValue, double maxValue, double scope, int numberOfParts) throws Exception {
+
+        if (val == minValue) {
+            return 0;
+        } else if (val == maxValue) {
+            return (numberOfParts - 1);
+        }
+
+        for (int i = 0; (minValue <= maxValue) || i <= (numberOfParts + 1); i++) {
+            if (val <= (minValue + scope)) {
+
+                return i;
+            } else {
+                minValue = minValue + scope; //przejście o zakres dalej
+            }
+        }
+
+        throw new Exception("Błąd poza zakresem danych!");
+    }
+
+    private double getMinValue(){
+        double minValue = signal.values().iterator().next();
+
+        for(double val: signal.values()){
+            minValue = val < minValue ?  val : minValue;
+        }
+
+        return minValue;
+    }
+
+    private double getMaxValue(){
+        double maxValue = signal.values().iterator().next();
+
+        for(double val: signal.values()){
+            maxValue = val > maxValue ?  val : maxValue;
+        }
+
+        return maxValue;
     }
 }

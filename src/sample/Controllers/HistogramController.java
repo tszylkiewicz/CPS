@@ -76,11 +76,7 @@ public class HistogramController implements Initializable {
 
 
             if (t.isAdded()) {
-                if (t.getControlText().contains(".")) {
-                    if (t.getText().matches("[^0-9]")) {
-                        t.setText("");
-                    }
-                } else if (t.getText().matches("[^0-9.]")) {
+                 if (t.getText().matches("[^0-9]")) {
                     t.setText("");
                 }
             }

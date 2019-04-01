@@ -260,18 +260,13 @@ public class BaseSignal {
         countEffectiveValue();
     }
 
-
-
     public void getDataForHistogram(int numberOfParts) throws Exception {
-        //System.out.println(signal.entrySet() + "\n" + signal.values());
-
         minValueHist = getMinValue();
         maxValueHist = getMaxValue();
 
         double amplitudeValue = Math.abs(minValueHist) + Math.abs(maxValueHist);
         double scope = amplitudeValue / numberOfParts;
         histogramTableValue = new int[numberOfParts];
-
 
         for (double val : signal.values()) {
             int index = checksScopeForValues(val, minValueHist, maxValueHist, scope, numberOfParts);
@@ -280,7 +275,6 @@ public class BaseSignal {
     }
 
     private int checksScopeForValues(double val, double minValue, double maxValue, double scope, int numberOfParts) throws Exception {
-
         if (val == minValue) {
             return 0;
         } else if (val == maxValue) {

@@ -85,11 +85,16 @@ public class GenerateSignalController implements Initializable {
 
 
             if (t.isAdded()) {
+                if (t.getControlText().contains("-")) {
+                    if (t.getText().matches("[^0-9.]")) {
+                        t.setText("");
+                    }
+                }
                 if (t.getControlText().contains(".")) {
                     if (t.getText().matches("[^0-9]")) {
                         t.setText("");
                     }
-                } else if (t.getText().matches("[^0-9.]")) {
+                } else if (t.getText().matches("[^0-9.-]")) {
                     t.setText("");
                 }
             }

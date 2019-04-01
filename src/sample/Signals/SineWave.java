@@ -1,11 +1,9 @@
-package sample;
-
-import java.util.HashMap;
+package sample.Signals;
 
 public class SineWave extends BaseSignal {
 
-    public float T;
-    public int type;
+    private float T;
+    private int type;
 
     public SineWave(float A, float t1, float d, float T, int type) {
         super(A, t1, d);

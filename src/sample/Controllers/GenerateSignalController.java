@@ -1,15 +1,21 @@
-package sample;
+package sample.Controllers;
 
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.chart.BarChart;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.ScatterChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import sample.Signals.*;
 
 import java.io.File;
 import java.net.URL;
@@ -22,12 +28,12 @@ import static javafx.collections.FXCollections.observableArrayList;
 public class GenerateSignalController implements Initializable {
 
     //Choice boxes
-    public ChoiceBox signalType;
-    public ChoiceBox generationChart;
-    public ChoiceBox operationType;
-    public ChoiceBox firstElement;
-    public ChoiceBox secondElement;
-    public ChoiceBox result;
+    public ChoiceBox<String> signalType;
+    public ChoiceBox<String> generationChart;
+    public ChoiceBox<String> operationType;
+    public ChoiceBox<String> firstElement;
+    public ChoiceBox<String> secondElement;
+    public ChoiceBox<String> result;
 
     //Parameters
     public TextField amplitude;         //A
@@ -50,9 +56,6 @@ public class GenerateSignalController implements Initializable {
     public LineChart<Double, Double> lineChart2;
     public LineChart<Double, Double> lineChart3;
 
-    //Histogram
-    public BarChart<String,Number> histogram1;
-
     //ScatterCharts
     public ScatterChart<Double, Double> scatterChart1;
     public ScatterChart<Double, Double> scatterChart2;
@@ -74,28 +77,24 @@ public class GenerateSignalController implements Initializable {
         secondElement.setItems(chartList);
         result.setItems(chartList);
 
-        UnaryOperator<TextFormatter.Change> filter = new UnaryOperator<TextFormatter.Change>() {
+        UnaryOperator<TextFormatter.Change> filter = t -> {
 
-            @Override
-            public TextFormatter.Change apply(TextFormatter.Change t) {
-
-                if (t.isReplaced())
-                    if (t.getText().matches("[^0-9]"))
-                        t.setText(t.getControlText().substring(t.getRangeStart(), t.getRangeEnd()));
+            if (t.isReplaced())
+                if (t.getText().matches("[^0-9]"))
+                    t.setText(t.getControlText().substring(t.getRangeStart(), t.getRangeEnd()));
 
 
-                if (t.isAdded()) {
-                    if (t.getControlText().contains(".")) {
-                        if (t.getText().matches("[^0-9]")) {
-                            t.setText("");
-                        }
-                    } else if (t.getText().matches("[^0-9.]")) {
+            if (t.isAdded()) {
+                if (t.getControlText().contains(".")) {
+                    if (t.getText().matches("[^0-9]")) {
                         t.setText("");
                     }
+                } else if (t.getText().matches("[^0-9.]")) {
+                    t.setText("");
                 }
-
-                return t;
             }
+
+            return t;
         };
 
         amplitude.setTextFormatter(new TextFormatter<>(filter));
@@ -124,7 +123,7 @@ public class GenerateSignalController implements Initializable {
     private void chooseSignal() {
         chosenSignal = signalType.getValue();
         if (chosenSignal == null) {
-            Error("Error", "Signal generator error", "No signal chosen.");
+            Error("Signal generator error", "No signal chosen.");
         } else {
             //A, t1, d
             if (chosenSignal == "Uniform noise" || chosenSignal == "Gaussian noise") {
@@ -151,8 +150,7 @@ public class GenerateSignalController implements Initializable {
     @FXML
     private void generateSignal() {
         if (generationChart == null) {
-            Error("Error", "Chart error", "Chart has to be selected");
-            return;
+            Error("Chart error", "Chart has to be selected");
         } else {
             if (validateParameter()) {
                 float A = 0, T = 0, t1 = 0, d = 0, kw = 0, ts = 0, f = 0, ns = 0, p = 0;
@@ -185,9 +183,9 @@ public class GenerateSignalController implements Initializable {
                 }
 
                 int i = 0;
-                if (generationChart.getValue() == "Chart 2") {
+                if (generationChart.getValue().equals("Chart 2")) {
                     i = 1;
-                } else if (generationChart.getValue() == "Chart 3") {
+                } else if (generationChart.getValue().equals("Chart 3")) {
                     i = 2;
                 }
 
@@ -237,34 +235,47 @@ public class GenerateSignalController implements Initializable {
     }
 
     @FXML
-    private void generateHistogramDiagram() throws Exception {
-        signal[0].getDataForHistogram(5);
+    private void openHistogramWindow(ActionEvent event) {
+        Node node = (Node) event.getSource();
+        String data = (String) node.getUserData();
+        int value = Integer.parseInt(data);
 
-        generateHistogram(0);
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../Views/histogram.fxml"));
+            Parent root1 = fxmlLoader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Histogram for chart " + (value + 1));
+            stage.setScene(new Scene(root1, 640, 640));
+            stage.setResizable(false);
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
+        HistogramController.signal = signal[value];
     }
 
     @FXML
     private void calculate() {
         if (firstElement.getValue() == null || secondElement.getValue() == null || result.getValue() == null) {
-            Error("Error", "Calculation error", "All calculation components must be declared.");
+            Error("Calculation error", "All calculation components must be declared.");
             return;
         }
 
-        int first = getIndex(firstElement.getValue().toString());
-        int second = getIndex(secondElement.getValue().toString());
-        int res = getIndex(result.getValue().toString());
+        int first = getIndex(firstElement.getValue());
+        int second = getIndex(secondElement.getValue());
+        int res = getIndex(result.getValue());
 
-        if (operationType.getValue() == "Addition") {
+        if (operationType.getValue().equals("Addition")) {
             signal[res] = signal[first].addition(signal[second]);
         }
-        if (operationType.getValue() == "Subtraction") {
+        if (operationType.getValue().equals("Subtraction")) {
             signal[res] = signal[first].subtraction(signal[second]);
         }
-        if (operationType.getValue() == "Multiplication") {
+        if (operationType.getValue().equals("Multiplication")) {
             signal[res] = signal[first].multiplication(signal[second]);
         }
-        if (operationType.getValue() == "Division") {
+        if (operationType.getValue().equals("Division")) {
             signal[res] = signal[first].division(signal[second]);
         }
 
@@ -296,36 +307,6 @@ public class GenerateSignalController implements Initializable {
         grid3.getChildren().clear();
     }
 
-    @FXML
-    private void saveChart1() {
-        saveChart(0);
-    }
-
-    @FXML
-    private void saveChart2() {
-        saveChart(1);
-    }
-
-    @FXML
-    private void saveChart3() {
-        saveChart(2);
-    }
-
-    @FXML
-    private void openChart1() {
-        openChart(0);
-    }
-
-    @FXML
-    private void openChart2() {
-        openChart(1);
-    }
-
-    @FXML
-    private void openChart3() {
-        openChart(2);
-    }
-
     private XYChart.Series<Double, Double> createNewDataSeries(int i) {
         XYChart.Series<Double, Double> series = new XYChart.Series<>();
         series.setName(chosenSignal.toString());
@@ -333,22 +314,6 @@ public class GenerateSignalController implements Initializable {
         //adding data from signals to series
         for (Map.Entry<Double, Double> entry : signal[i].signal.entrySet()) {
             series.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue()));
-        }
-
-        return series;
-    }
-
-    private XYChart.Series<String, Number> createNewDataSeriesBarChart(int i) {
-        XYChart.Series<String, Number> series = new XYChart.Series<>();
-        series.setName("Histogram " + i );
-
-//        Double minValue = signal[i].minValueHist;
-//        Double scope = signal[i].scope;
-//        Double startPoint = minValue;
-
-        //adding data from signals to series
-        for (int j = 0; j < signal[i].tablicaWartosciHisgoram.length; j++) {
-            series.getData().add(new XYChart.Data("Period " + j, signal[i].tablicaWartosciHisgoram[j]));
         }
 
         return series;
@@ -387,7 +352,7 @@ public class GenerateSignalController implements Initializable {
                 break;
             }
             default: {
-                Error("Error", "Generating signal error", "Generating signal error");
+                Error("Generating signal error", "Generating signal error");
                 break;
             }
         }
@@ -420,37 +385,7 @@ public class GenerateSignalController implements Initializable {
                 break;
             }
             default: {
-                Error("Error", "Generating signal error", "Generating signal error");
-                break;
-            }
-        }
-    }
-
-    private void generateHistogram(int i) {
-        switch (i) {
-            case 0: {
-                histogram1.setVisible(true);
-                histogram1.getData().add(createNewDataSeriesBarChart(i));
-                break;
-            }
-            case 1: {
-//                clearChart2();
-//                lineChart2.setVisible(false);
-//                scatterChart2.setVisible(true);
-//                scatterChart2.getData().add(createNewDataSeries(i));
-//                filData(grid2, i);
-                break;
-            }
-            case 2: {
-//                clearChart3();
-//                lineChart3.setVisible(false);
-//                scatterChart3.setVisible(true);
-//                scatterChart3.getData().add(createNewDataSeries(i));
-//                filData(grid3, i);
-                break;
-            }
-            default: {
-                Error("Error", "Generating signal error", "Generating signal error");
+                Error("Generating signal error", "Generating signal error");
                 break;
             }
         }
@@ -472,16 +407,21 @@ public class GenerateSignalController implements Initializable {
     }
 
     private int getIndex(String name) {
-        if (name == "Chart 1") {
+        if (name.equals("Chart 1")) {
             return 0;
-        } else if (name == "Chart 2") {
+        } else if (name.equals("Chart 2")) {
             return 1;
         } else {
             return 2;
         }
     }
 
-    private void saveChart(int i) {
+    @FXML
+    private void saveChart(ActionEvent event) {
+        Node node = (Node) event.getSource();
+        String data = (String) node.getUserData();
+        int value = Integer.parseInt(data);
+
         FileChooser fileChooser = new FileChooser();
 
         //Set extension filter
@@ -493,17 +433,22 @@ public class GenerateSignalController implements Initializable {
 
         if (file != null) {
             try {
-                if(signal[i] == null) {
+                if (signal[value] == null) {
                     throw new Exception();
                 }
-                signal[i].saveToBinary(file);
+                signal[value].saveToBinary(file);
             } catch (Exception ex) {
-                Error("Error", "Saving error", "File cannot be saved properly.");
+                Error("Saving error", "File cannot be saved properly.");
             }
         }
     }
 
-    private void openChart(int i) {
+    @FXML
+    private void openChart(ActionEvent event) {
+        Node node = (Node) event.getSource();
+        String data = (String) node.getUserData();
+        int value = Integer.parseInt(data);
+
         FileChooser fileChooser = new FileChooser();
 
         //Set extension filter
@@ -515,24 +460,24 @@ public class GenerateSignalController implements Initializable {
 
         if (file != null) {
             try {
-                if(signal[i] == null) {
-                    signal[i] = new BaseSignal();
+                if (signal[value] == null) {
+                    signal[value] = new BaseSignal();
                 }
-                signal[i].readFromBinary(file);
+                signal[value].readFromBinary(file);
             } catch (Exception ex) {
-                Error("Error", "Opening error", "File cannot be opened properly.");
+                Error("Opening error", "File cannot be opened properly.");
             }
         }
         if (chosenSignal.toString().toLowerCase().contains("impulse")) {
-            generateScatterChart(i);
+            generateScatterChart(value);
         } else {
-            generateLineChart(i);
+            generateLineChart(value);
         }
     }
 
-    private void Error(String title, String header, String content) {
+    private void Error(String header, String content) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
+        alert.setTitle("Error");
         alert.setHeaderText(header);
         alert.setContentText(content);
         alert.showAndWait();
@@ -549,7 +494,7 @@ public class GenerateSignalController implements Initializable {
                 (sampleNumber.isVisible() && sampleNumber.getText().isEmpty()) ||
                 (probability.isVisible() && probability.getText().isEmpty())
         ) {
-            Error("Error", "Parameter error", "All parameters are required");
+            Error("Parameter error", "All parameters are required");
             return false;
         }
         return true;

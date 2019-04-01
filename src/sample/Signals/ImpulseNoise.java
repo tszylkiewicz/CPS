@@ -1,11 +1,11 @@
-package sample;
+package sample.Signals;
 
 
 import java.util.Random;
 
 public class ImpulseNoise extends BaseSignal {
 
-    public float p;
+    private float p;
 
     public ImpulseNoise(float A, float t1, float d, float f, float p) {
         super(A, t1, d);

@@ -1,10 +1,8 @@
-package sample;
-
-import java.util.Random;
+package sample.Signals;
 
 public class KroneckerImpulse extends BaseSignal {
 
-    public double ns;
+    private double ns;
 
     public KroneckerImpulse(float A, float t1, float d, float f, float ns) {
         super(A, t1, d);

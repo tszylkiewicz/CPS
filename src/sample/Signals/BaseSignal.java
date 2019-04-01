@@ -1,19 +1,17 @@
-package sample;
-
-import javafx.fxml.FXML;
+package sample.Signals;
 
 import java.util.HashMap;
 import java.io.*;
 
 public class BaseSignal {
 
-    protected float step = 0.01f;
-    public boolean complex = false;
+    float step = 0.01f;
+    private boolean complex = false;
 
     //Parameters
-    public float A;
-    public float t1;
-    public float d;
+    float A;
+    float t1;
+    float d;
     public HashMap<Double, Double> signal;
     public double average;
     public double absoluteAverage;
@@ -22,14 +20,13 @@ public class BaseSignal {
     public double effectiveValue;
 
     //histogram parameters
-    public int[] tablicaWartosciHisgoram;
+    public int[] histogramTableValue;
     public double minValueHist;
     public double maxValueHist;
-    public double scope;
 
     public BaseSignal() { }
 
-    public BaseSignal(float A, float t1, float d) {
+    BaseSignal(float A, float t1, float d) {
         this.A = A;
         this.t1 = t1;
         this.d = d;
@@ -55,7 +52,7 @@ public class BaseSignal {
         return x;
     }
 
-    public void countAverage() {
+    private void countAverage() {
         for (Double y : signal.values()
         ) {
             average += y;
@@ -64,7 +61,7 @@ public class BaseSignal {
         average = Math.round(average * 10000.00) / 10000.00;
     }
 
-    public void countAbsoluteAverage() {
+    private void countAbsoluteAverage() {
         for (Double y : signal.values()
         ) {
             absoluteAverage += Math.abs(y);
@@ -73,7 +70,7 @@ public class BaseSignal {
         absoluteAverage = Math.round(absoluteAverage * 10000.00) / 10000.00;
     }
 
-    public void countRms() {
+    private void countRms() {
         for (Double y : signal.values()
         ) {
             rms += Math.pow(y, 2);
@@ -83,7 +80,7 @@ public class BaseSignal {
         rms = Math.round(rms * 10000.00) / 10000.00;
     }
 
-    public void countVariance() {
+    private void countVariance() {
         for (Double y : signal.values()
         ) {
             variance += Math.pow(y - average, 2);
@@ -92,7 +89,7 @@ public class BaseSignal {
         variance = Math.round(variance * 10000.00) / 10000.00;
     }
 
-    public void countEffectiveValue() {
+    private void countEffectiveValue() {
         effectiveValue = Math.sqrt(rms);
         effectiveValue = Math.round(effectiveValue * 10000.00) / 10000.00;
     }
@@ -217,13 +214,12 @@ public class BaseSignal {
     }
 
     public void readFromBinary(File file) throws Exception {
-        System.out.println("siema");
         DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
         readParameters(in);
         in.close();
     }
 
-    public void writeParameters(DataOutputStream out) throws Exception {
+    private void writeParameters(DataOutputStream out) throws Exception {
         out.writeFloat(t1);
         out.writeFloat(step);
         out.writeFloat(d);
@@ -236,7 +232,7 @@ public class BaseSignal {
         }
     }
 
-    public void readParameters(DataInputStream in) throws Exception {
+    private void readParameters(DataInputStream in) throws Exception {
         t1 = 0;
         step = 0;
         d = 0;
@@ -267,21 +263,20 @@ public class BaseSignal {
 
 
     public void getDataForHistogram(int numberOfParts) throws Exception {
-        System.out.println(signal.entrySet() + "\n" + signal.values());
+        //System.out.println(signal.entrySet() + "\n" + signal.values());
 
         minValueHist = getMinValue();
         maxValueHist = getMaxValue();
 
         double amplitudeValue = Math.abs(minValueHist) + Math.abs(maxValueHist);
-        scope = amplitudeValue / numberOfParts;
-        tablicaWartosciHisgoram = new int[numberOfParts];
+        double scope = amplitudeValue / numberOfParts;
+        histogramTableValue = new int[numberOfParts];
 
 
         for (double val : signal.values()) {
             int index = checksScopeForValues(val, minValueHist, maxValueHist, scope, numberOfParts);
-            tablicaWartosciHisgoram[index] = tablicaWartosciHisgoram[index] + 1;
+            histogramTableValue[index] += 1;
         }
-
     }
 
     private int checksScopeForValues(double val, double minValue, double maxValue, double scope, int numberOfParts) throws Exception {

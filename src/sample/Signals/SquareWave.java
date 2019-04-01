@@ -1,10 +1,10 @@
-package sample;
+package sample.Signals;
 
 public class SquareWave extends BaseSignal {
 
-    public float T;
-    public float kw;
-    public int type;
+    private float T;
+    private float kw;
+    private int type;
 
     public SquareWave(float A, float t1, float d, float T, float kw, int type) {
         super(A, t1, d);

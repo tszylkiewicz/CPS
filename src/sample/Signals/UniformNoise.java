@@ -1,10 +1,10 @@
-package sample;
+package sample.Signals;
 
 import java.util.Random;
 
 public class UniformNoise extends BaseSignal {
 
-    public int type;
+    private int type;
 
     public UniformNoise(float A, float t1, float d, int type) {
         super(A, t1, d);

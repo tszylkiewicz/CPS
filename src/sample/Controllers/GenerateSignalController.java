@@ -261,6 +261,48 @@ public class GenerateSignalController implements Initializable {
     }
 
     @FXML
+    private void openSignalConversionWindow(ActionEvent event) {
+        Node node = (Node) event.getSource();
+        String data = (String) node.getUserData();
+        int value = Integer.parseInt(data);
+
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../Views/signalConversion.fxml"));
+            Parent root1 = fxmlLoader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Signal conversion for chart " + (value + 1));
+            stage.setScene(new Scene(root1, 900, 900));
+            stage.setResizable(false);
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        SignalConversionController.signal = signal[value];
+        switch (value) {
+            case 0: {
+                SignalConversionController.lineChart = lineChart1.isVisible() ? lineChart1 : null;
+                SignalConversionController.scatterChart = scatterChart1.isVisible() ? scatterChart1 : null;
+                break;
+            }
+            case 1: {
+                SignalConversionController.lineChart = lineChart2.isVisible() ? lineChart2 : null;
+                SignalConversionController.scatterChart = scatterChart2.isVisible() ? scatterChart2 : null;
+                break;
+            }
+            case 2: {
+                SignalConversionController.lineChart = lineChart3.isVisible() ? lineChart3 : null;
+                SignalConversionController.scatterChart = scatterChart3.isVisible() ? scatterChart3 : null;
+                break;
+            }
+            default: {
+                Error("Opening window error", "Error while opening signal conversion window");
+                break;
+            }
+        }
+    }
+
+    @FXML
     private void calculate() {
         if (firstElement.getValue() == null || secondElement.getValue() == null || result.getValue() == null) {
             Error("Calculation error", "All calculation components must be declared.");

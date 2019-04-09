@@ -1,5 +1,6 @@
 package sample.Controllers;
 
+import com.sun.xml.internal.bind.v2.runtime.unmarshaller.Loader;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -16,6 +17,7 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import sample.Signals.*;
+import sun.misc.Signal;
 
 import java.io.File;
 import java.net.URL;
@@ -266,8 +268,8 @@ public class GenerateSignalController implements Initializable {
         String data = (String) node.getUserData();
         int value = Integer.parseInt(data);
 
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../Views/signalConversion.fxml"));
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../Views/signalConversion.fxml"));
             Parent root1 = fxmlLoader.load();
             Stage stage = new Stage();
             stage.setTitle("Signal conversion for chart " + (value + 1));
@@ -278,21 +280,19 @@ public class GenerateSignalController implements Initializable {
             e.printStackTrace();
         }
 
-        SignalConversionController.signal = signal[value];
+        SignalConversionController signalConversionController = fxmlLoader.getController();
+        signalConversionController.setSignal(signal[value]);
         switch (value) {
             case 0: {
-                SignalConversionController.lineChart = lineChart1.isVisible() ? lineChart1 : null;
-                SignalConversionController.scatterChart = scatterChart1.isVisible() ? scatterChart1 : null;
+                signalConversionController.setCharts(lineChart1.isVisible() ? lineChart1 : null, scatterChart1.isVisible() ? scatterChart1 : null);
                 break;
             }
             case 1: {
-                SignalConversionController.lineChart = lineChart2.isVisible() ? lineChart2 : null;
-                SignalConversionController.scatterChart = scatterChart2.isVisible() ? scatterChart2 : null;
+                signalConversionController.setCharts(lineChart2.isVisible() ? lineChart2 : null, scatterChart2.isVisible() ? scatterChart2 : null);
                 break;
             }
             case 2: {
-                SignalConversionController.lineChart = lineChart3.isVisible() ? lineChart3 : null;
-                SignalConversionController.scatterChart = scatterChart3.isVisible() ? scatterChart3 : null;
+                signalConversionController.setCharts(lineChart3.isVisible() ? lineChart3 : null, scatterChart3.isVisible() ? scatterChart3 : null);
                 break;
             }
             default: {

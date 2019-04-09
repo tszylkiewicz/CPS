@@ -312,4 +312,17 @@ public class BaseSignal {
 
         return maxValue;
     }
+
+    public HashMap<Double, Double> sample(float samplingRate){
+        HashMap<Double, Double> result = new HashMap<>();
+        float t2 = t1 + d;
+        double x, y;
+        for (double t = t1; Math.round(t * 100.00) / 100.00 <= t2; t += samplingRate) {
+            x = Math.round(t * 100.00) / 100.00;
+            //y = Math.round(signalFunction(x) * 100000.00) / 100000.00;
+            y = signal.get(x);
+            result.put(x, y);
+        }
+        return result;
+    }
 }

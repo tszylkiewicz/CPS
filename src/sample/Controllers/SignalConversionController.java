@@ -10,6 +10,7 @@ import sample.Signals.BaseSignal;
 
 import java.awt.*;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.ResourceBundle;
 import java.util.function.UnaryOperator;
 
@@ -18,9 +19,11 @@ public class SignalConversionController implements Initializable {
 
     public TextField samplingRate;
 
-    static BaseSignal signal;
-    static LineChart<Double, Double> lineChart;
-    static ScatterChart<Double, Double> scatterChart;
+    private HashMap<Double, Double> samples;
+    private  BaseSignal originalSignal;
+    private  BaseSignal reconstructedSignal;
+    private LineChart<Double, Double> lineChart;
+    private ScatterChart<Double, Double> scatterChart;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -45,11 +48,20 @@ public class SignalConversionController implements Initializable {
 
     @FXML
     private void sample() {
-
+        this.samples = this.originalSignal.sample(Float.parseFloat(samplingRate.getText()));
     }
 
     @FXML
     private void quantify(){
 
+    }
+
+    public void setSignal(BaseSignal signal) {
+        this.originalSignal = signal;
+    }
+
+    public void setCharts(LineChart lineChart, ScatterChart scatterChart){
+        this.lineChart = lineChart;
+        this.scatterChart = scatterChart;
     }
 }

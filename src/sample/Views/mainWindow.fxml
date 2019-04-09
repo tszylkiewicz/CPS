@@ -165,7 +165,7 @@
         <Button layoutX="568.0" layoutY="720.0" mnemonicParsing="false" onAction="#openChart" prefWidth="100.0" text="Open" userData="0" AnchorPane.bottomAnchor="105.0" AnchorPane.rightAnchor="20.0" />
         <Button layoutX="555.0" layoutY="608.0" mnemonicParsing="false" onAction="#openHistogramWindow" prefWidth="100.0" text="Histogram" userData="0" AnchorPane.bottomAnchor="60.0" AnchorPane.rightAnchor="20.0" />
         <Button layoutX="524.0" layoutY="598.0" mnemonicParsing="false" onAction="#clearChart1" prefWidth="100.0" text="Clear Chart" AnchorPane.bottomAnchor="15.0" AnchorPane.rightAnchor="20.0" />
-      <Button layoutX="201.0" layoutY="500.0" mnemonicParsing="false" onAction="#openSignalConversionWindow" userData="0" prefHeight="25.0" prefWidth="238.0" text="Sampling and quantization" />
+      <Button layoutX="201.0" layoutY="500.0" mnemonicParsing="false" onAction="#openSignalConversionWindow" prefHeight="25.0" prefWidth="238.0" text="Signal conversion" userData="0" />
     </AnchorPane>
     <AnchorPane layoutX="640.0" layoutY="324.0" prefHeight="785.0" prefWidth="640.0" style="-fx-background-color: #e2e2e2;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="640.0" AnchorPane.rightAnchor="640.0" AnchorPane.topAnchor="175.0">
         <LineChart fx:id="lineChart2" prefHeight="400.0" title="Line Chart" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="100.0">

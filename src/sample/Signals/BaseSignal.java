@@ -1,5 +1,6 @@
 package sample.Signals;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.io.*;
 
@@ -24,7 +25,8 @@ public class BaseSignal {
     public double minValueHist;
     public double maxValueHist;
 
-    public BaseSignal() { }
+    public BaseSignal() {
+    }
 
     BaseSignal(float A, float t1, float d) {
         this.A = A;
@@ -293,34 +295,47 @@ public class BaseSignal {
         throw new Exception("Błąd poza zakresem danych!");
     }
 
-    private double getMinValue(){
+    private double getMinValue() {
         double minValue = signal.values().iterator().next();
 
-        for(double val: signal.values()){
-            minValue = val < minValue ?  val : minValue;
+        for (double val : signal.values()) {
+            minValue = val < minValue ? val : minValue;
         }
 
         return minValue;
     }
 
-    private double getMaxValue(){
+    private double getMaxValue() {
         double maxValue = signal.values().iterator().next();
 
-        for(double val: signal.values()){
-            maxValue = val > maxValue ?  val : maxValue;
+        for (double val : signal.values()) {
+            maxValue = val > maxValue ? val : maxValue;
         }
 
         return maxValue;
     }
 
-    public HashMap<Double, Double> sample(float samplingRate){
+    public HashMap<Double, Double> sample(float samplingRate) {
         HashMap<Double, Double> result = new HashMap<>();
         float t2 = t1 + d;
         double x, y;
         for (double t = t1; Math.round(t * 100.00) / 100.00 <= t2; t += samplingRate) {
             x = Math.round(t * 100.00) / 100.00;
-            //y = Math.round(signalFunction(x) * 100000.00) / 100000.00;
             y = signal.get(x);
+            result.put(x, y);
+        }
+        return result;
+    }
+
+    public HashMap<Double, Double> quantify(int quantizationLevel) {
+        HashMap<Double, Double> result = new HashMap<>();
+        double x, y;
+        double minValue = Collections.min(signal.values());
+        double maxValue = Collections.max(signal.values());
+        double quantizationWidth = (maxValue - minValue) / quantizationLevel;
+        for (double t = t1; Math.round(t * 100.00) / 100.00 <= (t1 + d); t += step) {
+            x = Math.round(t * 100.00) / 100.00;
+            y = quantizationWidth * (((int) (signal.get(x) / quantizationWidth)));
             result.put(x, y);
         }
         return result;

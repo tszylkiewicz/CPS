@@ -284,15 +284,18 @@ public class GenerateSignalController implements Initializable {
         signalConversionController.setSignal(signal[value]);
         switch (value) {
             case 0: {
-                signalConversionController.setCharts(lineChart1.isVisible() ? lineChart1 : null, scatterChart1.isVisible() ? scatterChart1 : null);
+                signalConversionController.setCharts(lineChart1.isVisible() ? lineChart1.getData() : null,
+                        scatterChart1.isVisible() ? scatterChart1.getData() : null);
                 break;
             }
             case 1: {
-                signalConversionController.setCharts(lineChart2.isVisible() ? lineChart2 : null, scatterChart2.isVisible() ? scatterChart2 : null);
+                signalConversionController.setCharts(lineChart2.isVisible() ? lineChart2.getData() : null,
+                        scatterChart2.isVisible() ? scatterChart2.getData() : null);
                 break;
             }
             case 2: {
-                signalConversionController.setCharts(lineChart3.isVisible() ? lineChart3 : null, scatterChart3.isVisible() ? scatterChart3 : null);
+                signalConversionController.setCharts(lineChart3.isVisible() ? lineChart3.getData() : null,
+                        scatterChart3.isVisible() ? scatterChart3.getData() : null);
                 break;
             }
             default: {

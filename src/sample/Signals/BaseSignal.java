@@ -1,5 +1,7 @@
 package sample.Signals;
 
+import javafx.util.Pair;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.io.*;
@@ -35,6 +37,9 @@ public class BaseSignal {
         signal = new HashMap<>();
     }
 
+    /**
+     * Public functions
+     */
     public void generateSignal() {
         float t2 = t1 + d;
         double x, y;
@@ -52,48 +57,6 @@ public class BaseSignal {
 
     public double signalFunction(double x) {
         return x;
-    }
-
-    private void countAverage() {
-        for (Double y : signal.values()
-        ) {
-            average += y;
-        }
-        average = average / (double) signal.size();
-        average = Math.round(average * 10000.00) / 10000.00;
-    }
-
-    private void countAbsoluteAverage() {
-        for (Double y : signal.values()
-        ) {
-            absoluteAverage += Math.abs(y);
-        }
-        absoluteAverage = absoluteAverage / (double) signal.size();
-        absoluteAverage = Math.round(absoluteAverage * 10000.00) / 10000.00;
-    }
-
-    private void countRms() {
-        for (Double y : signal.values()
-        ) {
-            rms += Math.pow(y, 2);
-        }
-        rms = rms / (double) signal.size();
-        rms = Math.sqrt(rms);
-        rms = Math.round(rms * 10000.00) / 10000.00;
-    }
-
-    private void countVariance() {
-        for (Double y : signal.values()
-        ) {
-            variance += Math.pow(y - average, 2);
-        }
-        variance = variance / (double) signal.size();
-        variance = Math.round(variance * 10000.00) / 10000.00;
-    }
-
-    private void countEffectiveValue() {
-        effectiveValue = Math.sqrt(rms);
-        effectiveValue = Math.round(effectiveValue * 10000.00) / 10000.00;
     }
 
     public BaseSignal addition(BaseSignal element) {
@@ -221,6 +184,130 @@ public class BaseSignal {
         in.close();
     }
 
+    public HashMap<Double, Double> sample(float samplingRate) {
+        HashMap<Double, Double> result = new HashMap<>();
+        float t2 = t1 + d;
+        double x, y;
+        for (double t = t1; Math.round(t * 100.00) / 100.00 <= t2; t += samplingRate) {
+            x = Math.round(t * 100.00) / 100.00;
+            y = signal.get(x);
+            result.put(x, y);
+        }
+        return result;
+    }
+
+    public HashMap<Double, Double> quantify(int quantizationLevel) {
+        HashMap<Double, Double> result = new HashMap<>();
+        double x, y;
+        double minValue = Collections.min(signal.values());
+        double maxValue = Collections.max(signal.values());
+        double quantizationWidth = (maxValue - minValue) / quantizationLevel;
+        for (double t = t1; Math.round(t * 100.00) / 100.00 <= (t1 + d); t += step) {
+            x = Math.round(t * 100.00) / 100.00;
+            //z obcięciem
+            y = quantizationWidth * (((int) (signal.get(x) / quantizationWidth)));
+            //z zaokrągleniem
+            //y = quantizationWidth * ((Math.round(signal.get(x) / quantizationWidth)));
+            result.put(x, y);
+        }
+        return result;
+    }
+
+    public BaseSignal ZOH(HashMap<Double, Double> samples) {
+        HashMap<Double, Double> resultSet = new HashMap<>();
+        double x;
+        double y;
+        double lastValue;
+        lastValue = samples.get(Collections.min(samples.keySet()));
+        for (double t = t1; Math.round(t * 100.00) / 100.00 <= (t1 + d); t += step) {
+            x = Math.round(t * 100.00) / 100.00;
+            if (samples.containsKey(x)) {
+                lastValue = samples.get(x);
+            }
+            y = lastValue;
+            resultSet.put(x, y);
+        }
+        BaseSignal result = new BaseSignal(A, t1, d);
+        result.signal = resultSet;
+        return result;
+    }
+
+    public BaseSignal SincInterpolation(HashMap<Double, Double> samples) {
+        HashMap<Double, Double> resultSet = new HashMap<>();
+        double x;
+        double y;
+        for (double t = t1; Math.round(t * 100.00) / 100.00 <= (t1 + d); t += step) {
+            x = Math.round(t * 100.00) / 100.00;
+            y = 0;
+            for (Double key : samples.keySet()) {
+                y += samples.get(key) * Sinc(x- key);
+            }
+            resultSet.put(x, y);
+        }
+        BaseSignal result = new BaseSignal(A, t1, d);
+        result.signal = resultSet;
+        return result;
+    }
+
+    public void getDataForHistogram(int numberOfParts) throws Exception {
+        minValueHist = getMinValue();
+        maxValueHist = getMaxValue();
+
+        double amplitudeValue = Math.abs(minValueHist) + Math.abs(maxValueHist);
+        double scope = amplitudeValue / numberOfParts;
+        histogramTableValue = new int[numberOfParts];
+
+        for (double val : signal.values()) {
+            int index = checksScopeForValues(val, minValueHist, maxValueHist, scope, numberOfParts);
+            histogramTableValue[index] += 1;
+        }
+    }
+
+    /**
+     * Private functions
+     */
+    private void countAverage() {
+        for (Double y : signal.values()
+        ) {
+            average += y;
+        }
+        average = average / (double) signal.size();
+        average = Math.round(average * 10000.00) / 10000.00;
+    }
+
+    private void countAbsoluteAverage() {
+        for (Double y : signal.values()
+        ) {
+            absoluteAverage += Math.abs(y);
+        }
+        absoluteAverage = absoluteAverage / (double) signal.size();
+        absoluteAverage = Math.round(absoluteAverage * 10000.00) / 10000.00;
+    }
+
+    private void countRms() {
+        for (Double y : signal.values()
+        ) {
+            rms += Math.pow(y, 2);
+        }
+        rms = rms / (double) signal.size();
+        rms = Math.sqrt(rms);
+        rms = Math.round(rms * 10000.00) / 10000.00;
+    }
+
+    private void countVariance() {
+        for (Double y : signal.values()
+        ) {
+            variance += Math.pow(y - average, 2);
+        }
+        variance = variance / (double) signal.size();
+        variance = Math.round(variance * 10000.00) / 10000.00;
+    }
+
+    private void countEffectiveValue() {
+        effectiveValue = Math.sqrt(rms);
+        effectiveValue = Math.round(effectiveValue * 10000.00) / 10000.00;
+    }
+
     private void writeParameters(DataOutputStream out) throws Exception {
         out.writeFloat(t1);
         out.writeFloat(step);
@@ -262,20 +349,6 @@ public class BaseSignal {
         countEffectiveValue();
     }
 
-    public void getDataForHistogram(int numberOfParts) throws Exception {
-        minValueHist = getMinValue();
-        maxValueHist = getMaxValue();
-
-        double amplitudeValue = Math.abs(minValueHist) + Math.abs(maxValueHist);
-        double scope = amplitudeValue / numberOfParts;
-        histogramTableValue = new int[numberOfParts];
-
-        for (double val : signal.values()) {
-            int index = checksScopeForValues(val, minValueHist, maxValueHist, scope, numberOfParts);
-            histogramTableValue[index] += 1;
-        }
-    }
-
     private int checksScopeForValues(double val, double minValue, double maxValue, double scope, int numberOfParts) throws Exception {
         if (val == minValue) {
             return 0;
@@ -315,29 +388,11 @@ public class BaseSignal {
         return maxValue;
     }
 
-    public HashMap<Double, Double> sample(float samplingRate) {
-        HashMap<Double, Double> result = new HashMap<>();
-        float t2 = t1 + d;
-        double x, y;
-        for (double t = t1; Math.round(t * 100.00) / 100.00 <= t2; t += samplingRate) {
-            x = Math.round(t * 100.00) / 100.00;
-            y = signal.get(x);
-            result.put(x, y);
+    private double Sinc(double x) {
+        if (x == 0) {
+            return 1.0;
+        } else {
+            return Math.sin((Math.PI * x)) / (Math.PI * x);
         }
-        return result;
-    }
-
-    public HashMap<Double, Double> quantify(int quantizationLevel) {
-        HashMap<Double, Double> result = new HashMap<>();
-        double x, y;
-        double minValue = Collections.min(signal.values());
-        double maxValue = Collections.max(signal.values());
-        double quantizationWidth = (maxValue - minValue) / quantizationLevel;
-        for (double t = t1; Math.round(t * 100.00) / 100.00 <= (t1 + d); t += step) {
-            x = Math.round(t * 100.00) / 100.00;
-            y = quantizationWidth * (((int) (signal.get(x) / quantizationWidth)));
-            result.put(x, y);
-        }
-        return result;
     }
 }

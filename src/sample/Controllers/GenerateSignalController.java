@@ -357,6 +357,65 @@ public class GenerateSignalController implements Initializable {
         grid3.getChildren().clear();
     }
 
+    @FXML
+    private void saveChart(ActionEvent event) {
+        Node node = (Node) event.getSource();
+        String data = (String) node.getUserData();
+        int value = Integer.parseInt(data);
+
+        FileChooser fileChooser = new FileChooser();
+
+        //Set extension filter
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Binary files (*.bin)", "*.bin");
+        fileChooser.getExtensionFilters().add(extFilter);
+
+        //Show save file dialog
+        File file = fileChooser.showSaveDialog(amplitude.getScene().getWindow());
+
+        if (file != null) {
+            try {
+                if (signal[value] == null) {
+                    throw new Exception();
+                }
+                signal[value].saveToBinary(file);
+            } catch (Exception ex) {
+                Error("Saving error", "File cannot be saved properly.");
+            }
+        }
+    }
+
+    @FXML
+    private void openChart(ActionEvent event) {
+        Node node = (Node) event.getSource();
+        String data = (String) node.getUserData();
+        int value = Integer.parseInt(data);
+
+        FileChooser fileChooser = new FileChooser();
+
+        //Set extension filter
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Binary files (*.bin)", "*.bin");
+        fileChooser.getExtensionFilters().add(extFilter);
+
+        //Show save file dialog
+        File file = fileChooser.showOpenDialog(amplitude.getScene().getWindow());
+
+        if (file != null) {
+            try {
+                if (signal[value] == null) {
+                    signal[value] = new BaseSignal();
+                }
+                signal[value].readFromBinary(file);
+            } catch (Exception ex) {
+                Error("Opening error", "File cannot be opened properly.");
+            }
+        }
+        if (chosenSignal.toString().toLowerCase().contains("impulse")) {
+            generateScatterChart(value);
+        } else {
+            generateLineChart(value);
+        }
+    }
+
     private XYChart.Series<Double, Double> createNewDataSeries(int i) {
         XYChart.Series<Double, Double> series = new XYChart.Series<>();
         series.setName(chosenSignal.toString());
@@ -463,65 +522,6 @@ public class GenerateSignalController implements Initializable {
             return 1;
         } else {
             return 2;
-        }
-    }
-
-    @FXML
-    private void saveChart(ActionEvent event) {
-        Node node = (Node) event.getSource();
-        String data = (String) node.getUserData();
-        int value = Integer.parseInt(data);
-
-        FileChooser fileChooser = new FileChooser();
-
-        //Set extension filter
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Binary files (*.bin)", "*.bin");
-        fileChooser.getExtensionFilters().add(extFilter);
-
-        //Show save file dialog
-        File file = fileChooser.showSaveDialog(amplitude.getScene().getWindow());
-
-        if (file != null) {
-            try {
-                if (signal[value] == null) {
-                    throw new Exception();
-                }
-                signal[value].saveToBinary(file);
-            } catch (Exception ex) {
-                Error("Saving error", "File cannot be saved properly.");
-            }
-        }
-    }
-
-    @FXML
-    private void openChart(ActionEvent event) {
-        Node node = (Node) event.getSource();
-        String data = (String) node.getUserData();
-        int value = Integer.parseInt(data);
-
-        FileChooser fileChooser = new FileChooser();
-
-        //Set extension filter
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Binary files (*.bin)", "*.bin");
-        fileChooser.getExtensionFilters().add(extFilter);
-
-        //Show save file dialog
-        File file = fileChooser.showOpenDialog(amplitude.getScene().getWindow());
-
-        if (file != null) {
-            try {
-                if (signal[value] == null) {
-                    signal[value] = new BaseSignal();
-                }
-                signal[value].readFromBinary(file);
-            } catch (Exception ex) {
-                Error("Opening error", "File cannot be opened properly.");
-            }
-        }
-        if (chosenSignal.toString().toLowerCase().contains("impulse")) {
-            generateScatterChart(value);
-        } else {
-            generateLineChart(value);
         }
     }
 

@@ -93,8 +93,15 @@ public class SignalConversionController implements Initializable {
     }
 
     @FXML
-    private void quantify() {
-        this.samples = this.originalSignal.quantify(Integer.parseInt(quantizationLevel.getText()));
+    private void quantifyCut() {
+        this.samples = this.originalSignal.quantify(Integer.parseInt(quantizationLevel.getText()), 0);
+        //System.out.println(this.samples);
+        addDataToChart("Quantization result", this.samples);
+    }
+
+    @FXML
+    private void quantifyRound() {
+        this.samples = this.originalSignal.quantify(Integer.parseInt(quantizationLevel.getText()), 1);
         //System.out.println(this.samples);
         addDataToChart("Quantization result", this.samples);
     }

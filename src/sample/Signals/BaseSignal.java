@@ -196,7 +196,7 @@ public class BaseSignal {
         return result;
     }
 
-    public HashMap<Double, Double> quantify(int quantizationLevel) {
+    public HashMap<Double, Double> quantify(int quantizationLevel, int typeOfQuantization) {
         HashMap<Double, Double> result = new HashMap<>();
         double x, y;
         double minValue = Collections.min(signal.values());
@@ -204,10 +204,14 @@ public class BaseSignal {
         double quantizationWidth = (maxValue - minValue) / quantizationLevel;
         for (double t = t1; Math.round(t * 100.00) / 100.00 <= (t1 + d); t += step) {
             x = Math.round(t * 100.00) / 100.00;
-            //z obcięciem
-            y = quantizationWidth * (((int) (signal.get(x) / quantizationWidth)));
-            //z zaokrągleniem
-            //y = quantizationWidth * ((Math.round(signal.get(x) / quantizationWidth)));
+
+            if(typeOfQuantization == 0) {
+                //z obcięciem
+                y = quantizationWidth * (((int) (signal.get(x) / quantizationWidth)));
+            } else {
+                //z zaokrągleniem
+                y = quantizationWidth * ((Math.round(signal.get(x) / quantizationWidth)));
+            }
             result.put(x, y);
         }
         return result;

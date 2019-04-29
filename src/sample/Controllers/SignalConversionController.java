@@ -38,6 +38,8 @@ public class SignalConversionController implements Initializable {
     private BaseSignal originalSignal;
     private BaseSignal reconstructedSignal;
 
+    private HashMap<Double, Double> restoredSignal;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         UnaryOperator<TextFormatter.Change> filter = t -> {
@@ -64,6 +66,7 @@ public class SignalConversionController implements Initializable {
 
     public void setSignal(BaseSignal signal) {
         this.originalSignal = signal;
+        this.restoredSignal = signal.signal;
     }
 
     public void setCharts(ObservableList<XYChart.Series<Double, Double>> lineChart, ObservableList<XYChart.Series<Double, Double>> scatterChart) {
@@ -81,8 +84,9 @@ public class SignalConversionController implements Initializable {
     @FXML
     private void clearChart() {
         lineChart.getData().clear();
+        scatterChart.getData().clear();
         measures.getChildren().clear();
-
+        addDataToChart("Original Signal", restoredSignal);
     }
 
     @FXML
@@ -109,14 +113,14 @@ public class SignalConversionController implements Initializable {
     @FXML
     private void ZOH() {
         this.reconstructedSignal = this.originalSignal.ZOH(samples);
-        addDataToChart("Reconstructed signal", this.reconstructedSignal.signal);
+        addDataToChart("Reconstructed signal - ZOH", this.reconstructedSignal.signal);
         filData();
     }
 
     @FXML
     private void Sinc() {
         this.reconstructedSignal = this.originalSignal.SincInterpolation(samples);
-        addDataToChart("Reconstructed signal", this.reconstructedSignal.signal);
+        addDataToChart("Reconstructed signal - Sinc", this.reconstructedSignal.signal);
         filData();
     }
 

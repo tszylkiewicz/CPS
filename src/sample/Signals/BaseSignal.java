@@ -2,13 +2,13 @@ package sample.Signals;
 
 import javafx.util.Pair;
 
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.*;
 import java.io.*;
 
 public class BaseSignal {
 
-    float step = 0.01f;
+    public float step = 0.001f; //1000Hz
+    public double signalFrequency = 1000.00;
     private boolean complex = false;
 
     //Parameters
@@ -30,11 +30,18 @@ public class BaseSignal {
     public BaseSignal() {
     }
 
-    BaseSignal(float A, float t1, float d) {
+    public BaseSignal(float A, float t1, float d) {
         this.A = A;
         this.t1 = t1;
         this.d = d;
         signal = new HashMap<>();
+    }
+
+    public BaseSignal(BaseSignal baseSignal) {
+        this.A = baseSignal.A;
+        this.t1 = baseSignal.t1;
+        this.d = baseSignal.d;
+        this.signal = baseSignal.signal;
     }
 
     /**
@@ -43,8 +50,8 @@ public class BaseSignal {
     public void generateSignal() {
         float t2 = t1 + d;
         double x, y;
-        for (double t = t1; Math.round(t * 100.00) / 100.00 <= t2; t += step) {
-            x = Math.round(t * 100.00) / 100.00;
+        for (double t = t1; Math.round(t * signalFrequency) / signalFrequency <= t2; t += step) {
+            x = Math.round(t * signalFrequency) / signalFrequency;
             y = Math.round(signalFunction(x) * 100000.00) / 100000.00;
             signal.put(x, y);
         }
@@ -70,8 +77,8 @@ public class BaseSignal {
 
         BaseSignal sum = new BaseSignal(sumA, sumT1, sumD);
         double x, y;
-        for (double t = sumT1; Math.round(t * 100.00) / 100.00 <= (sumT1 + sumD); t += step) {
-            x = Math.round(t * 100.00) / 100.00;
+        for (double t = sumT1; Math.round(t * signalFrequency) / signalFrequency <= (sumT1 + sumD); t += step) {
+            x = Math.round(t * signalFrequency) / signalFrequency;
             y = signal.getOrDefault(x, 0.0d) + element.signal.getOrDefault(x, 0.0d);
             y = Math.round(y * 100000.00) / 100000.00;
             sum.signal.put(x, y);
@@ -97,8 +104,8 @@ public class BaseSignal {
 
         BaseSignal sum = new BaseSignal(sumA, sumT1, sumD);
         double x, y;
-        for (double t = sumT1; Math.round(t * 100.00) / 100.00 <= (sumT1 + sumD); t += step) {
-            x = Math.round(t * 100.00) / 100.00;
+        for (double t = sumT1; Math.round(t * signalFrequency) / signalFrequency <= (sumT1 + sumD); t += step) {
+            x = Math.round(t * signalFrequency) / signalFrequency;
             y = signal.getOrDefault(x, 0.0d) - element.signal.getOrDefault(x, 0.0d);
             y = Math.round(y * 100000.00) / 100000.00;
             sum.signal.put(x, y);
@@ -124,8 +131,8 @@ public class BaseSignal {
 
         BaseSignal sum = new BaseSignal(sumA, sumT1, sumD);
         double x, y;
-        for (double t = sumT1; Math.round(t * 100.00) / 100.00 <= (sumT1 + sumD); t += step) {
-            x = Math.round(t * 100.00) / 100.00;
+        for (double t = sumT1; Math.round(t * signalFrequency) / signalFrequency <= (sumT1 + sumD); t += step) {
+            x = Math.round(t * signalFrequency) / signalFrequency;
             y = signal.getOrDefault(x, 0.0d) * element.signal.getOrDefault(x, 0.0d);
             y = Math.round(y * 100000.00) / 100000.00;
             sum.signal.put(x, y);
@@ -151,8 +158,8 @@ public class BaseSignal {
 
         BaseSignal sum = new BaseSignal(sumA, sumT1, sumD);
         double x, y;
-        for (double t = sumT1; Math.round(t * 100.00) / 100.00 <= (sumT1 + sumD); t += step) {
-            x = Math.round(t * 100.00) / 100.00;
+        for (double t = sumT1; Math.round(t * signalFrequency) / signalFrequency <= (sumT1 + sumD); t += step) {
+            x = Math.round(t * signalFrequency) / signalFrequency;
             if (element.signal.getOrDefault(x, 0.0d) != 0.0d) {
                 y = signal.getOrDefault(x, 0.0d) / element.signal.getOrDefault(x, 0.0d);
             } else {
@@ -188,24 +195,24 @@ public class BaseSignal {
         HashMap<Double, Double> result = new HashMap<>();
         float t2 = t1 + d;
         double x, y;
-        for (double t = t1; Math.round(t * 100.00) / 100.00 <= t2; t += samplingRate) {
-            x = Math.round(t * 100.00) / 100.00;
+        for (double t = t1; Math.round(t * signalFrequency) / signalFrequency <= t2; t += samplingRate) {
+            x = Math.round(t * signalFrequency) / signalFrequency;
             y = signal.get(x);
             result.put(x, y);
         }
         return result;
     }
 
-    public HashMap<Double, Double> quantify(int quantizationLevel, int typeOfQuantization) {
+    public void quantify(int quantizationLevel, int typeOfQuantization) {
         HashMap<Double, Double> result = new HashMap<>();
         double x, y;
         double minValue = Collections.min(signal.values());
         double maxValue = Collections.max(signal.values());
         double quantizationWidth = (maxValue - minValue) / quantizationLevel;
-        for (double t = t1; Math.round(t * 100.00) / 100.00 <= (t1 + d); t += step) {
-            x = Math.round(t * 100.00) / 100.00;
+        for (double t = t1; Math.round(t * signalFrequency) / signalFrequency <= (t1 + d); t += step) {
+            x = Math.round(t * signalFrequency) / signalFrequency;
 
-            if(typeOfQuantization == 0) {
+            if (typeOfQuantization == 0) {
                 //z obcięciem
                 y = quantizationWidth * (((int) (signal.get(x) / quantizationWidth)));
             } else {
@@ -214,19 +221,19 @@ public class BaseSignal {
             }
             result.put(x, y);
         }
-        return result;
+        this.signal = result;
+        //return result;
     }
 
-    public BaseSignal ZOH(HashMap<Double, Double> samples) {
+    public BaseSignal ZOH() {
         HashMap<Double, Double> resultSet = new HashMap<>();
         double x;
         double y;
-        double lastValue;
-        lastValue = samples.get(Collections.min(samples.keySet()));
-        for (double t = t1; Math.round(t * 100.00) / 100.00 <= (t1 + d); t += step) {
-            x = Math.round(t * 100.00) / 100.00;
-            if (samples.containsKey(x)) {
-                lastValue = samples.get(x);
+        double lastValue = this.signal.get(Collections.min(this.signal.keySet()));
+        for (double t = t1; Math.round(t * signalFrequency) / signalFrequency <= (t1 + d); t += step) {
+            x = Math.round(t * signalFrequency) / signalFrequency;
+            if (this.signal.containsKey(x)) {
+                lastValue = this.signal.get(x);
             }
             y = lastValue;
             resultSet.put(x, y);
@@ -236,15 +243,19 @@ public class BaseSignal {
         return result;
     }
 
-    public BaseSignal SincInterpolation(HashMap<Double, Double> samples) {
+    public BaseSignal SincInterpolation(double freq) {
         HashMap<Double, Double> resultSet = new HashMap<>();
         double x;
         double y;
-        for (double t = t1; Math.round(t * 100.00) / 100.00 <= (t1 + d); t += step) {
-            x = Math.round(t * 100.00) / 100.00;
+        List<Double> sortedKeys = new ArrayList<>(this.signal.keySet());
+        Collections.sort(sortedKeys);
+        for (double t = t1; Math.round(t * signalFrequency) / signalFrequency <= (t1 + d); t += step) {
+            x = Math.round(t * signalFrequency) / signalFrequency;
             y = 0;
-            for (Double key : samples.keySet()) {
-                y += samples.get(key) * Sinc(x- key);
+            int c = 0;
+            for (Double key : sortedKeys) {
+                y += this.signal.get(key) * Sinc((x / freq) - c);
+                c++;
             }
             resultSet.put(x, y);
         }
@@ -318,8 +329,8 @@ public class BaseSignal {
         out.writeFloat(d);
         out.writeBoolean(complex);
 
-        for (double i = t1; Math.round(i * 100.00) / 100.00 <= t1 + d; i += step) {
-            i = Math.round(i * 100.00) / 100.00;
+        for (double i = t1; Math.round(i * signalFrequency) / signalFrequency <= t1 + d; i += step) {
+            i = Math.round(i * signalFrequency) / signalFrequency;
             out.writeDouble(i);
             out.writeDouble(signal.get(i));
         }
@@ -338,7 +349,7 @@ public class BaseSignal {
 
         double x, y;
         signal = new HashMap<>();
-        for (double i = t1; Math.round(i * 100.00) / 100.00 <= t1 + d; i += step) {
+        for (double i = t1; Math.round(i * signalFrequency) / signalFrequency <= t1 + d; i += step) {
             x = in.readDouble();
             y = in.readDouble();
             if (y > A) {
@@ -393,7 +404,7 @@ public class BaseSignal {
     }
 
     private double Sinc(double x) {
-        if (x == 0) {
+        if (Math.round(x * 1000000.00) / 1000000.00 == 0.0) {
             return 1.0;
         } else {
             return Math.sin((Math.PI * x)) / (Math.PI * x);

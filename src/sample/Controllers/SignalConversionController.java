@@ -34,9 +34,9 @@ public class SignalConversionController implements Initializable {
     @FXML
     private ScatterChart<Double, Double> scatterChart;
 
-    private HashMap<Double, Double> samples;
     private BaseSignal originalSignal;
     private BaseSignal reconstructedSignal;
+    private BaseSignal tempSignal;
 
     private HashMap<Double, Double> restoredSignal;
 
@@ -65,8 +65,9 @@ public class SignalConversionController implements Initializable {
     }
 
     public void setSignal(BaseSignal signal) {
-        this.originalSignal = signal;
+        this.originalSignal = new BaseSignal(signal);
         this.restoredSignal = signal.signal;
+        this.tempSignal = new BaseSignal(signal);
     }
 
     public void setCharts(ObservableList<XYChart.Series<Double, Double>> lineChart, ObservableList<XYChart.Series<Double, Double>> scatterChart) {
@@ -91,35 +92,35 @@ public class SignalConversionController implements Initializable {
 
     @FXML
     private void sample() {
-        this.samples = this.originalSignal.sample(Float.parseFloat(samplingRate.getText()));
-        //System.out.println(this.samples);
-        addDataToChart("Sampling result", this.samples);
+        this.tempSignal.signal = this.originalSignal.sample(Float.parseFloat(samplingRate.getText()));
+        this.tempSignal.step = Float.parseFloat(samplingRate.getText());
+        addDataToChart("Sampling result", this.tempSignal.signal);
     }
 
     @FXML
     private void quantifyCut() {
-        this.samples = this.originalSignal.quantify(Integer.parseInt(quantizationLevel.getText()), 0);
-        //System.out.println(this.samples);
-        addDataToChart("Quantization result", this.samples);
+        this.tempSignal.quantify(Integer.parseInt(quantizationLevel.getText()), 0);
+        addDataToChart("Quantization result", this.tempSignal.signal);
     }
 
     @FXML
     private void quantifyRound() {
-        this.samples = this.originalSignal.quantify(Integer.parseInt(quantizationLevel.getText()), 1);
-        //System.out.println(this.samples);
-        addDataToChart("Quantization result", this.samples);
+        this.tempSignal.quantify(Integer.parseInt(quantizationLevel.getText()), 1);
+        addDataToChart("Quantization result", this.tempSignal.signal);
     }
 
     @FXML
     private void ZOH() {
-        this.reconstructedSignal = this.originalSignal.ZOH(samples);
+        this.reconstructedSignal = this.tempSignal.ZOH();
         addDataToChart("Reconstructed signal - ZOH", this.reconstructedSignal.signal);
         filData();
     }
 
     @FXML
     private void Sinc() {
-        this.reconstructedSignal = this.originalSignal.SincInterpolation(samples);
+        double freq = Math.round(this.tempSignal.step * 10000.00) / 10000.00;
+        this.tempSignal.step =  this.originalSignal.step;
+        this.reconstructedSignal = this.tempSignal.SincInterpolation(freq);
         addDataToChart("Reconstructed signal - Sinc", this.reconstructedSignal.signal);
         filData();
     }
@@ -138,9 +139,9 @@ public class SignalConversionController implements Initializable {
     private void countMSE() {
         this.MSE = 0;
         for (Double key : this.originalSignal.signal.keySet()) {
-            this.MSE += Math.pow(this.originalSignal.signal.get(key) - this.reconstructedSignal.signal.get(key),2);
+            this.MSE += Math.pow(this.originalSignal.signal.get(key) - this.reconstructedSignal.signal.get(key), 2);
         }
-        this.MSE = Math.round((this.MSE / this.originalSignal.signal.size())* 10000.00) / 10000.00;
+        this.MSE = Math.round((this.MSE / this.originalSignal.signal.size()) * 10000.00) / 10000.00;
     }
 
     private void countSNR() {
@@ -148,14 +149,14 @@ public class SignalConversionController implements Initializable {
         double numerator = 0;
         double denominator = 0;
         for (Double key : this.originalSignal.signal.keySet()) {
-            numerator += Math.pow(this.originalSignal.signal.get(key),2);
-            denominator += Math.pow(this.originalSignal.signal.get(key) - this.reconstructedSignal.signal.get(key),2);
+            numerator += Math.pow(this.originalSignal.signal.get(key), 2);
+            denominator += Math.pow(this.originalSignal.signal.get(key) - this.reconstructedSignal.signal.get(key), 2);
         }
         this.SNR = Math.round((10 * Math.log10(numerator / denominator)) * 10000.00) / 10000.00;
     }
 
     private void countPSNR() {
-        this.PSNR = Math.round((10 * Math.log10(Collections.max(this.originalSignal.signal.values()) / this.MSE))* 10000.00) / 10000.00;
+        this.PSNR = Math.round((10 * Math.log10(Collections.max(this.originalSignal.signal.values()) / this.MSE)) * 10000.00) / 10000.00;
     }
 
     private void countMD() {

@@ -7,7 +7,7 @@ public class KroneckerImpulse extends BaseSignal {
     public KroneckerImpulse(float A, float t1, float d, float f, float ns) {
         super(A, t1, d);
         this.step = f;
-        this.ns = Math.round(ns * 100.00) / 100.00;
+        this.ns = Math.round(ns * signalFrequency) / signalFrequency;
     }
 
     @Override

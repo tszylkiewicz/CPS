@@ -231,7 +231,6 @@ public class GenerateSignalController implements Initializable {
                 }
 
                 signal[i].generateSignal();
-
                 if (chosenSignal.toString().toLowerCase().contains("impulse")) {
                     generateScatterChart(i);
                 } else {

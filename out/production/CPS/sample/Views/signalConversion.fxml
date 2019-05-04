@@ -11,9 +11,9 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<AnchorPane prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controllers.SignalConversionController">
+<AnchorPane prefHeight="730.0" prefWidth="980.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controllers.SignalConversionController">
    <children>
-      <LineChart fx:id="lineChart" layoutX="30.0" layoutY="91.0" prefHeight="400.0" stylesheets="@../Stylesheets/window.css" title="Line Chart" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="100.0">
+      <LineChart fx:id="lineChart" layoutX="30.0" layoutY="91.0" prefHeight="400.0" stylesheets="@../Stylesheets/window.css" title="Line Chart" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="150.0">
          <xAxis>
             <NumberAxis label="X" side="BOTTOM" />
          </xAxis>
@@ -21,7 +21,7 @@
             <NumberAxis label="Y" side="LEFT" />
          </yAxis>
       </LineChart>
-      <ScatterChart fx:id="scatterChart" layoutX="80.0" layoutY="102.0" prefHeight="400.0" title="Impulse Chart" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="100.0">
+      <ScatterChart fx:id="scatterChart" layoutX="80.0" layoutY="102.0" prefHeight="400.0" title="Impulse Chart" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="150.0">
          <xAxis>
             <NumberAxis side="BOTTOM" />
          </xAxis>
@@ -33,22 +33,27 @@
         <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
+            <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
+            <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
         </columnConstraints>
         <rowConstraints>
+          <RowConstraints />
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <Label text="Sampling rate" />
-            <TextField fx:id="samplingRate" GridPane.columnIndex="1" />
-            <Button mnemonicParsing="false" onAction="#sample" text="Sample" GridPane.columnIndex="2" />
-            <Label layoutX="10.0" layoutY="17.0" text="Quantization levels" GridPane.rowIndex="1" />
-            <TextField fx:id="quantizationLevel" layoutX="160.0" layoutY="13.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <Button layoutX="310.0" layoutY="13.0" mnemonicParsing="false" onAction="#quantify" text="Quantify" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-            <Button layoutX="310.0" layoutY="43.0" mnemonicParsing="false" onAction="#ZOH" text="Zero-order hold" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-            <Button layoutX="310.0" layoutY="73.0" mnemonicParsing="false" onAction="#Sinc" text="Sinc interpolation" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <Label text="Sampling frequency(Hz)" GridPane.rowIndex="1" />
+            <Label layoutX="10.0" layoutY="17.0" text="Quantization levels" GridPane.rowIndex="2" />
+            <Label layoutX="10.0" layoutY="47.0" text="Reconstruction frequency" GridPane.rowIndex="3" />
+            <TextField fx:id="samplingRate" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <TextField fx:id="quantizationLevel" layoutX="160.0" layoutY="13.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <TextField fx:id="reconstructionFreq" layoutX="160.0" layoutY="43.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            <Button mnemonicParsing="false" onAction="#sample" prefWidth="140.0" text="Sample" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+            <Button layoutX="310.0" layoutY="13.0" mnemonicParsing="false" onAction="#quantifyCut" prefWidth="140.0" text="Quantify with Cut" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+            <Button layoutX="310.0" layoutY="43.0" mnemonicParsing="false" onAction="#ZOH" prefWidth="140.0" text="Zero-order hold" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+            <Button layoutX="310.0" layoutY="73.0" mnemonicParsing="false" onAction="#Sinc" prefWidth="140.0" text="Sinc interpolation" GridPane.columnIndex="3" GridPane.rowIndex="3" />
+            <Button mnemonicParsing="false" onAction="#quantifyRound" prefWidth="140.0" text="Quantify with Round" GridPane.columnIndex="3" GridPane.rowIndex="2" />
          </children>
       </GridPane>
       <GridPane fx:id="measures" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
@@ -62,5 +67,6 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
       </GridPane>
+      <Button layoutX="20.0" layoutY="125.0" mnemonicParsing="false" onAction="#clearChart" text="Clear chart" />
    </children>
 </AnchorPane>

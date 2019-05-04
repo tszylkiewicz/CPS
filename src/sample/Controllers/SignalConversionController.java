@@ -21,6 +21,7 @@ public class SignalConversionController implements Initializable {
 
     public TextField samplingRate;
     public TextField quantizationLevel;
+    public TextField reconstructionFreq;
 
     public double MSE;
     public double SNR;
@@ -50,7 +51,7 @@ public class SignalConversionController implements Initializable {
 
 
             if (t.isAdded()) {
-                if (t.getText().matches("[^0-9.]")) {
+                if (t.getText().matches("[^0-9]")) {
                     t.setText("");
                 }
             }
@@ -59,9 +60,10 @@ public class SignalConversionController implements Initializable {
         };
 
         samplingRate.setTextFormatter(new TextFormatter<>(filter));
+        reconstructionFreq.setTextFormatter(new TextFormatter<>(filter));
         lineChart.setVisible(true);
         scatterChart.setVisible(false);
-        //lineChart.setCreateSymbols(false);
+        reconstructionFreq.setText("1000");
     }
 
     public void setSignal(BaseSignal signal) {
@@ -92,8 +94,10 @@ public class SignalConversionController implements Initializable {
 
     @FXML
     private void sample() {
-        this.tempSignal.signal = this.originalSignal.sample(Float.parseFloat(samplingRate.getText()));
-        this.tempSignal.step = Float.parseFloat(samplingRate.getText());
+        float temp = (float) (1.0 / Float.parseFloat(samplingRate.getText()));
+        this.tempSignal.signal = this.originalSignal.sample(temp);
+        this.tempSignal.step = temp;
+        this.tempSignal.signalFrequency = Float.parseFloat(samplingRate.getText());
         addDataToChart("Sampling result", this.tempSignal.signal);
     }
 
@@ -111,6 +115,8 @@ public class SignalConversionController implements Initializable {
 
     @FXML
     private void ZOH() {
+        this.tempSignal.step = (float) (1.0 / Integer.parseInt(reconstructionFreq.getText()));
+        this.tempSignal.signalFrequency = Integer.parseInt(reconstructionFreq.getText());
         this.reconstructedSignal = this.tempSignal.ZOH();
         addDataToChart("Reconstructed signal - ZOH", this.reconstructedSignal.signal);
         filData();
@@ -119,7 +125,8 @@ public class SignalConversionController implements Initializable {
     @FXML
     private void Sinc() {
         double freq = Math.round(this.tempSignal.step * 10000.00) / 10000.00;
-        this.tempSignal.step =  this.originalSignal.step;
+        this.tempSignal.step = (float) (1.0 / Integer.parseInt(reconstructionFreq.getText()));
+        this.tempSignal.signalFrequency = Integer.parseInt(reconstructionFreq.getText());
         this.reconstructedSignal = this.tempSignal.SincInterpolation(freq);
         addDataToChart("Reconstructed signal - Sinc", this.reconstructedSignal.signal);
         filData();
@@ -139,7 +146,9 @@ public class SignalConversionController implements Initializable {
     private void countMSE() {
         this.MSE = 0;
         for (Double key : this.originalSignal.signal.keySet()) {
-            this.MSE += Math.pow(this.originalSignal.signal.get(key) - this.reconstructedSignal.signal.get(key), 2);
+            if (this.reconstructedSignal.signal.get(key) != null) {
+                this.MSE += Math.pow(this.originalSignal.signal.get(key) - this.reconstructedSignal.signal.get(key), 2);
+            }
         }
         this.MSE = Math.round((this.MSE / this.originalSignal.signal.size()) * 10000.00) / 10000.00;
     }
@@ -149,8 +158,10 @@ public class SignalConversionController implements Initializable {
         double numerator = 0;
         double denominator = 0;
         for (Double key : this.originalSignal.signal.keySet()) {
-            numerator += Math.pow(this.originalSignal.signal.get(key), 2);
-            denominator += Math.pow(this.originalSignal.signal.get(key) - this.reconstructedSignal.signal.get(key), 2);
+            if (this.reconstructedSignal.signal.get(key) != null) {
+                numerator += Math.pow(this.originalSignal.signal.get(key), 2);
+                denominator += Math.pow(this.originalSignal.signal.get(key) - this.reconstructedSignal.signal.get(key), 2);
+            }
         }
         this.SNR = Math.round((10 * Math.log10(numerator / denominator)) * 10000.00) / 10000.00;
     }
@@ -162,7 +173,9 @@ public class SignalConversionController implements Initializable {
     private void countMD() {
         List<Double> temp = new ArrayList<>();
         for (Double key : this.originalSignal.signal.keySet()) {
-            temp.add(Math.abs(this.originalSignal.signal.get(key) - this.reconstructedSignal.signal.get(key)));
+            if (this.reconstructedSignal.signal.get(key) != null) {
+                temp.add(Math.abs(this.originalSignal.signal.get(key) - this.reconstructedSignal.signal.get(key)));
+            }
         }
         this.MD = Math.round(Collections.max(temp) * 10000.00) / 10000.00;
     }

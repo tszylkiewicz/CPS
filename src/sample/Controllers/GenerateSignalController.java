@@ -17,12 +17,10 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import sample.Signals.*;
-import sun.misc.Signal;
 
 import java.io.File;
 import java.net.URL;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.function.UnaryOperator;
 
 import static javafx.collections.FXCollections.observableArrayList;
@@ -48,6 +46,7 @@ public class GenerateSignalController implements Initializable {
     public TextField probability;       //p
     public TextField sampleNumber;      //ns
 
+    public CheckBox correlationType;
     //Grids with average values
     public GridPane grid1;
     public GridPane grid2;
@@ -333,6 +332,28 @@ public class GenerateSignalController implements Initializable {
         } else {
             generateLineChart(res);
         }
+    }
+
+    @FXML
+    private void convolute() {
+        clearChart3();
+        this.signal[2] = new BaseSignal();
+        grid3.getChildren().clear();
+
+        this.signal[2].signal = this.signal[0].convolute(this.signal[1], false);
+        generateLineChart(2);
+        filData(grid3, 2);
+    }
+
+    @FXML
+    private void correlate() {
+        clearChart3();
+        this.signal[2] = new BaseSignal();
+        grid3.getChildren().clear();
+
+        this.signal[2].signal = this.signal[0].correlate(this.signal[1], correlationType.isSelected());
+        generateLineChart(2);
+        filData(grid3, 2);
     }
 
     @FXML

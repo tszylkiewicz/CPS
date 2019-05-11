@@ -39,7 +39,7 @@ public class SignalConversionController implements Initializable {
     private BaseSignal reconstructedSignal;
     private BaseSignal tempSignal;
 
-    private HashMap<Double, Double> restoredSignal;
+    private TreeMap<Double, Double> restoredSignal;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -132,7 +132,7 @@ public class SignalConversionController implements Initializable {
         filData();
     }
 
-    private void addDataToChart(String title, HashMap<Double, Double> data) {
+    private void addDataToChart(String title, TreeMap<Double, Double> data) {
         XYChart.Series<Double, Double> series = new XYChart.Series<>();
         series.setName(title);
 

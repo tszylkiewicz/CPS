@@ -1,7 +1,5 @@
 package sample.Signals;
 
-import javafx.util.Pair;
-
 import java.util.*;
 import java.io.*;
 
@@ -12,10 +10,10 @@ public class BaseSignal {
     private boolean complex = false;
 
     //Parameters
-    float A;
-    float t1;
-    float d;
-    public HashMap<Double, Double> signal;
+    public float A;
+    public float t1;
+    public float d;
+    public TreeMap<Double, Double> signal;
     public double average;
     public double absoluteAverage;
     public double rms;
@@ -28,13 +26,14 @@ public class BaseSignal {
     public double maxValueHist;
 
     public BaseSignal() {
+        signal = new TreeMap<>();
     }
 
     public BaseSignal(float A, float t1, float d) {
         this.A = A;
         this.t1 = t1;
         this.d = d;
-        signal = new HashMap<>();
+        signal = new TreeMap<>();
     }
 
     public BaseSignal(BaseSignal baseSignal) {
@@ -191,8 +190,8 @@ public class BaseSignal {
         in.close();
     }
 
-    public HashMap<Double, Double> sample(float samplingRate) {
-        HashMap<Double, Double> result = new HashMap<>();
+    public TreeMap<Double, Double> sample(float samplingRate) {
+        TreeMap<Double, Double> result = new TreeMap<>();
         float t2 = t1 + d;
         double x, y;
         for (double t = t1; Math.round(t * signalFrequency) / signalFrequency <= t2; t += samplingRate) {
@@ -204,7 +203,7 @@ public class BaseSignal {
     }
 
     public void quantify(int quantizationLevel, int typeOfQuantization) {
-        HashMap<Double, Double> result = new HashMap<>();
+        TreeMap<Double, Double> result = new TreeMap<>();
         double x, y;
         double minValue = Collections.min(signal.values());
         double maxValue = Collections.max(signal.values());
@@ -226,7 +225,7 @@ public class BaseSignal {
     }
 
     public BaseSignal ZOH() {
-        HashMap<Double, Double> resultSet = new HashMap<>();
+        TreeMap<Double, Double> resultSet = new TreeMap<>();
         double x;
         double y;
         double lastValue = this.signal.get(Collections.min(this.signal.keySet()));
@@ -244,7 +243,7 @@ public class BaseSignal {
     }
 
     public BaseSignal SincInterpolation(double freq) {
-        HashMap<Double, Double> resultSet = new HashMap<>();
+        TreeMap<Double, Double> resultSet = new TreeMap<>();
         double x;
         double y;
         List<Double> sortedKeys = new ArrayList<>(this.signal.keySet());
@@ -348,7 +347,7 @@ public class BaseSignal {
         complex = in.readBoolean();
 
         double x, y;
-        signal = new HashMap<>();
+        signal = new TreeMap<>();
         for (double i = t1; Math.round(i * signalFrequency) / signalFrequency <= t1 + d; i += step) {
             x = in.readDouble();
             y = in.readDouble();
@@ -409,5 +408,105 @@ public class BaseSignal {
         } else {
             return Math.sin((Math.PI * x)) / (Math.PI * x);
         }
+    }
+
+    public TreeMap<Double, Double> convolute(BaseSignal secondSignal, boolean correlation) {
+        float step;
+        TreeMap<Double, Double> sig1 = new TreeMap();
+        TreeMap<Double, Double> sig2 = new TreeMap();
+
+        if (secondSignal.t1 < this.t1) {
+            sig1.putAll(secondSignal.signal);
+            if (correlation) {
+                sig1 = new TreeMap<>(sig1.descendingMap());
+            }
+            sig2.putAll(this.signal);
+            step = secondSignal.step;
+        } else {
+            sig1.putAll(this.signal);
+            sig2.putAll(secondSignal.signal);
+            if (correlation) {
+                sig2 = new TreeMap<>(sig2.descendingMap());
+            }
+            step = this.step;
+        }
+
+        int size = sig1.keySet().size() + sig2.keySet().size() - 1;
+        double t = sig1.firstKey();
+        double[] resultKeys = new double[size];
+
+        for (int i = 0; i < size; i++) {
+            resultKeys[i] = t;
+            t += step;
+            t = Math.round(t * signalFrequency) / signalFrequency;
+        }
+
+        List<Double> values1 = new ArrayList(sig1.values());
+        List<Double> values2 = new ArrayList(sig2.values());
+        double[] resultValues = new double[size];
+
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j <= i; j++) {
+                if ((values1.size() > j) && (values2.size() > i - j)) {
+                    resultValues[i] += values1.get(j) * values2.get(i - j);
+                }
+            }
+            resultValues[i] = Math.round(resultValues[i] * 100000.00) / 100000.00;
+        }
+
+        TreeMap<Double, Double> result = new TreeMap<>();
+        for (int i = 0; i < size; i++) {
+            result.put(resultKeys[i], resultValues[i]);
+        }
+        return result;
+    }
+
+    public TreeMap<Double, Double> correlate(BaseSignal secondSignal, boolean convolution) {
+        if (convolution) {
+            return this.convolute(secondSignal, true);
+        }
+
+        float step;
+        TreeMap<Double, Double> sig1 = new TreeMap();
+        TreeMap<Double, Double> sig2 = new TreeMap();
+
+        if (secondSignal.t1 < this.t1) {
+            sig1.putAll(secondSignal.signal);
+            sig2.putAll(this.signal);
+            step = secondSignal.step;
+        } else {
+            sig1.putAll(this.signal);
+            sig2.putAll(secondSignal.signal);
+            step = this.step;
+        }
+
+        int size = sig1.keySet().size() + sig2.keySet().size() - 1;
+        double t = sig1.firstKey();
+        double[] resultKeys = new double[size];
+
+        for (int i = 0; i < size; i++) {
+            resultKeys[i] = t;
+            t += step;
+            t = Math.round(t * signalFrequency) / signalFrequency;
+        }
+
+        List<Double> values1 = new ArrayList(sig1.values());
+        List<Double> values2 = new ArrayList(sig2.values());
+        double[] resultValues = new double[size];
+
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j <= i; j++) {
+                if ((values1.size() > j) && (values2.size() > (values2.size() - 1 - Math.abs(j - i)) && (values2.size() - 1 - Math.abs(j - i) >= 0))) {
+                    resultValues[i] += values1.get(j) * values2.get(values2.size() - 1 - Math.abs(j - i));
+                }
+            }
+            resultValues[i] = Math.round(resultValues[i] * 100000.00) / 100000.00;
+        }
+
+        TreeMap<Double, Double> result = new TreeMap<>();
+        for (int i = 0; i < size; i++) {
+            result.put(resultKeys[i], resultValues[i]);
+        }
+        return result;
     }
 }

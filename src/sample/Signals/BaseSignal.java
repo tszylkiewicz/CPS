@@ -10,9 +10,9 @@ public class BaseSignal {
     private boolean complex = false;
 
     //Parameters
-    public float A;
-    public float t1;
-    public float d;
+    float A;
+    float t1;
+    float d;
     public TreeMap<Double, Double> signal;
     public double average;
     public double absoluteAverage;
@@ -412,8 +412,8 @@ public class BaseSignal {
 
     public TreeMap<Double, Double> convolute(BaseSignal secondSignal, boolean correlation) {
         float step;
-        TreeMap<Double, Double> sig1 = new TreeMap();
-        TreeMap<Double, Double> sig2 = new TreeMap();
+        TreeMap<Double, Double> sig1 = new TreeMap<>();
+        TreeMap<Double, Double> sig2 = new TreeMap<>();
 
         if (secondSignal.t1 < this.t1) {
             sig1.putAll(secondSignal.signal);
@@ -441,8 +441,8 @@ public class BaseSignal {
             t = Math.round(t * signalFrequency) / signalFrequency;
         }
 
-        List<Double> values1 = new ArrayList(sig1.values());
-        List<Double> values2 = new ArrayList(sig2.values());
+        List<Double> values1 = new ArrayList<>(sig1.values());
+        List<Double> values2 = new ArrayList<>(sig2.values());
         double[] resultValues = new double[size];
 
         for (int i = 0; i < size; i++) {
@@ -467,8 +467,8 @@ public class BaseSignal {
         }
 
         float step;
-        TreeMap<Double, Double> sig1 = new TreeMap();
-        TreeMap<Double, Double> sig2 = new TreeMap();
+        TreeMap<Double, Double> sig1 = new TreeMap<>();
+        TreeMap<Double, Double> sig2 = new TreeMap<>();
 
         if (secondSignal.t1 < this.t1) {
             sig1.putAll(secondSignal.signal);
@@ -490,8 +490,8 @@ public class BaseSignal {
             t = Math.round(t * signalFrequency) / signalFrequency;
         }
 
-        List<Double> values1 = new ArrayList(sig1.values());
-        List<Double> values2 = new ArrayList(sig2.values());
+        List<Double> values1 = new ArrayList<>(sig1.values());
+        List<Double> values2 = new ArrayList<>(sig2.values());
         double[] resultValues = new double[size];
 
         for (int i = 0; i < size; i++) {
@@ -508,5 +508,92 @@ public class BaseSignal {
             result.put(resultKeys[i], resultValues[i]);
         }
         return result;
+    }
+
+    public TreeMap<Double, Double> projectFilter(BaseSignal secondSignal, int M, int K, String windowType, String filterType) {
+        BaseSignal filter = new BaseSignal();
+
+        TreeMap<Double, Double> sig1 = new TreeMap<>();
+        TreeMap<Double, Double> sig2 = new TreeMap<>();
+
+        if (secondSignal.t1 < this.t1) {
+            sig1.putAll(secondSignal.signal);
+            sig2.putAll(this.signal);
+        } else {
+            sig1.putAll(this.signal);
+            sig2.putAll(secondSignal.signal);
+        }
+
+        double begin = sig1.firstKey();
+        double end = sig1.lastKey() > sig2.lastKey() ? sig1.lastKey() : sig2.lastKey();
+        double step = (end - begin) / M;
+
+        List<Double> keys = new ArrayList<>();
+        List<Double> values = new ArrayList<>();
+
+        for (double i = filter.t1; i < end; i += step) {
+            keys.add(i);
+        }
+        for (int i = 0; i < M; i++) {
+            if (i == (K - 1.0) / 2.0) {
+                values.add(2.0 / K);
+            } else {
+                values.add(Math.sin((2.0 * Math.PI * (i - ((M - 1.0) / 2.0))) / K) / ((i - ((M - 1.0) / 2.0)) * Math.PI));
+            }
+        }
+
+        if (!filterType.equals("Low-pass")) {
+            ChangeFilter(values, filterType);
+        }
+        if (windowType != null) {
+            ApplyWindow(values, windowType);
+        }
+
+        TreeMap<Double, Double> result = new TreeMap<>();
+        for (int i = 0; i < M; i++) {
+            result.put(keys.get(i), values.get(i));
+        }
+
+        return result;
+    }
+
+    private void ChangeFilter(List<Double> values, String filterType) {
+        switch (filterType) {
+            case "High-pass": {
+                for (int i = 1; i < values.size(); i = i + 2) {
+                    values.set(i, -1.0 * values.get(i));
+                }
+                break;
+            }
+            case "Band-pass": {
+                for (int i = 0; i < values.size(); i++) {
+                    values.set(i, values.get(i) * 2.0 * Math.sin((Math.PI * i) / 2.0));
+                }
+                break;
+            }
+        }
+    }
+
+    private void ApplyWindow(List<Double> values, String windowType) {
+        switch (windowType) {
+            case "Hamming":
+                for (int i = 0; i < values.size(); i++) {
+                    double temp = 0.53836 - (0.46164 * Math.cos((2.0 * Math.PI * i) / values.size()));
+                    values.set(i, values.get(i) * temp);
+                }
+                break;
+            case "Hanning":
+                for (int i = 0; i < values.size(); i++) {
+                    double temp = 0.5 - (0.5 * Math.cos((2 * Math.PI * i) / values.size()));
+                    values.set(i, values.get(i) * temp);
+                }
+                break;
+            case "Blackman":
+                for (int i = 0; i < values.size(); i++) {
+                    double temp = 0.42 - (0.5 * Math.cos((2 * Math.PI * i) / values.size())) + (0.08 * Math.cos((4 * Math.PI * i) / values.size()));
+                    values.set(i, values.get(i) * temp);
+                }
+                break;
+        }
     }
 }

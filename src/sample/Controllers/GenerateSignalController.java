@@ -1,6 +1,5 @@
 package sample.Controllers;
 
-import com.sun.xml.internal.bind.v2.runtime.unmarshaller.Loader;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -20,7 +19,8 @@ import sample.Signals.*;
 
 import java.io.File;
 import java.net.URL;
-import java.util.*;
+import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.function.UnaryOperator;
 
 import static javafx.collections.FXCollections.observableArrayList;
@@ -45,6 +45,13 @@ public class GenerateSignalController implements Initializable {
     public TextField frequency;         //f
     public TextField probability;       //p
     public TextField sampleNumber;      //ns
+
+
+    //Filtration
+    public TextField filterMagnitude;
+    public TextField filterCoefficient;
+    public ChoiceBox<String> windowType;
+    public ChoiceBox<String> filterType;
 
     public CheckBox correlationType;
     //Grids with average values
@@ -77,6 +84,8 @@ public class GenerateSignalController implements Initializable {
         firstElement.setItems(chartList);
         secondElement.setItems(chartList);
         result.setItems(chartList);
+        windowType.setItems(windowList);
+        filterType.setItems(filterList);
 
         UnaryOperator<TextFormatter.Change> filter = t -> {
 
@@ -112,6 +121,8 @@ public class GenerateSignalController implements Initializable {
         frequency.setTextFormatter(new TextFormatter<>(filter));
         probability.setTextFormatter(new TextFormatter<>(filter));
         sampleNumber.setTextFormatter(new TextFormatter<>(filter));
+        filterMagnitude.setTextFormatter(new TextFormatter<>(filter));
+        filterCoefficient.setTextFormatter(new TextFormatter<>(filter));
 
         setParametersVisibility(false, false, false, false, false, false, false, false, false);
 
@@ -357,6 +368,22 @@ public class GenerateSignalController implements Initializable {
     }
 
     @FXML
+    private void filter() {
+        int M = Integer.parseInt(filterMagnitude.getText());
+        int K = Integer.parseInt(filterCoefficient.getText());
+        String window = windowType.getValue();
+        String filter = filterType.getValue();
+
+        this.signal[1].signal = this.signal[0].projectFilter(signal[1], M, K, window, filter);
+        clearChart2();
+        grid2.getChildren().clear();
+        generateLineChart(1);
+        filData(grid2, 1);
+
+        convolute();
+    }
+
+    @FXML
     private void clearChart1() {
         lineChart1.getData().clear();
         scatterChart1.getData().clear();
@@ -595,4 +622,7 @@ public class GenerateSignalController implements Initializable {
     private ObservableList<String> chartList = observableArrayList(
             "Chart 1", "Chart 2",
             "Chart 3");
+
+    private ObservableList<String> filterList = observableArrayList("Low-pass", "High-pass", "Band-pass");
+    private ObservableList<String> windowList = observableArrayList(null, "Hamming", "Hanning", "Blackman");
 }

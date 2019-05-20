@@ -315,6 +315,21 @@ public class GenerateSignalController implements Initializable {
     }
 
     @FXML
+    private  void openSensorSimulationWindow(ActionEvent event){
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../Views/sensorSimulation.fxml"));
+            Parent root1 = fxmlLoader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Sensor simulation");
+            stage.setScene(new Scene(root1, 900, 600));
+            stage.setResizable(true);
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
     private void calculate() {
         if (firstElement.getValue() == null || secondElement.getValue() == null || result.getValue() == null) {
             Error("Calculation error", "All calculation components must be declared.");
@@ -374,7 +389,8 @@ public class GenerateSignalController implements Initializable {
         String window = windowType.getValue();
         String filter = filterType.getValue();
 
-        this.signal[1].signal = this.signal[0].projectFilter(signal[1], M, K, window, filter);
+        this.signal[1] = new BaseSignal();
+        this.signal[1].signal = this.signal[0].projectFilter(M, K, window, filter);
         clearChart2();
         grid2.getChildren().clear();
         generateLineChart(1);

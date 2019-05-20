@@ -510,22 +510,11 @@ public class BaseSignal {
         return result;
     }
 
-    public TreeMap<Double, Double> projectFilter(BaseSignal secondSignal, int M, int K, String windowType, String filterType) {
+    public TreeMap<Double, Double> projectFilter(int M, int K, String windowType, String filterType) {
         BaseSignal filter = new BaseSignal();
 
-        TreeMap<Double, Double> sig1 = new TreeMap<>();
-        TreeMap<Double, Double> sig2 = new TreeMap<>();
-
-        if (secondSignal.t1 < this.t1) {
-            sig1.putAll(secondSignal.signal);
-            sig2.putAll(this.signal);
-        } else {
-            sig1.putAll(this.signal);
-            sig2.putAll(secondSignal.signal);
-        }
-
-        double begin = sig1.firstKey();
-        double end = sig1.lastKey() > sig2.lastKey() ? sig1.lastKey() : sig2.lastKey();
+        double begin = signal.firstKey();
+        double end = signal.lastKey();
         double step = (end - begin) / M;
 
         List<Double> keys = new ArrayList<>();

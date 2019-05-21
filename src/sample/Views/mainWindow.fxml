@@ -23,11 +23,9 @@
         <Menu mnemonicParsing="false" style="width: 100px;" text="File">
             <MenuItem mnemonicParsing="false" text="Exit" />
         </Menu>
-      <Menu mnemonicParsing="false" text="Sensors">
-        <items>
-          <MenuItem mnemonicParsing="false" onAction="#openSensorSimulationWindow" text="Sensor simulation" />
-        </items>
-      </Menu>
+        <Menu mnemonicParsing="false" text="Sensors">
+            <MenuItem mnemonicParsing="false" onAction="#openSensorSimulationWindow" text="Sensor simulation"/>
+        </Menu>
     </MenuBar>
     <AnchorPane layoutY="25.0" prefHeight="150.0" prefWidth="960.0" style="-fx-background-color: #bababa;" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="25.0">
         <GridPane hgap="15.0" layoutX="200.0" vgap="5.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="200.0" AnchorPane.rightAnchor="200.0" AnchorPane.topAnchor="5.0">
@@ -128,14 +126,12 @@
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
          </rowConstraints>
-         <children>
             <Button mnemonicParsing="false" onAction="#convolute" prefWidth="100.0" text="Convolute" GridPane.columnIndex="1" GridPane.halignment="CENTER" />
             <Button layoutX="35.0" layoutY="15.0" mnemonicParsing="false" onAction="#correlate" prefWidth="100.0" text="Correlate" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
             <CheckBox fx:id="correlationType" mnemonicParsing="false" text="Convolution base" GridPane.columnIndex="1" GridPane.rowIndex="2" />
             <Button layoutX="35.0" layoutY="53.0" mnemonicParsing="false" onAction="#filter" prefWidth="100.0" text="Filter" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
             <ChoiceBox fx:id="filterType" prefWidth="150.0" />
             <ChoiceBox fx:id="windowType" prefWidth="150.0" GridPane.rowIndex="1" />
-         </children>
       </GridPane>
       <GridPane alignment="CENTER" hgap="15.0" layoutX="511.0" layoutY="50.0" prefHeight="79.0" prefWidth="150.0" vgap="5.0">
          <columnConstraints>
@@ -146,12 +142,10 @@
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
          </rowConstraints>
-         <children>
             <TextField fx:id="filterMagnitude" />
             <TextField fx:id="filterCoefficient" GridPane.rowIndex="1" />
             <Label text="M" GridPane.columnIndex="1" />
             <Label layoutX="140.0" layoutY="20.0" text="K" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-         </children>
       </GridPane>
       <Label layoutX="511.0" layoutY="15.0" text="Filtration">
          <font>

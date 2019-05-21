@@ -1,16 +1,12 @@
 package sample.Controllers;
 
-import javafx.beans.binding.DoubleExpression;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
-import sample.Signals.BaseSignal;
 import sample.Signals.SineWave;
-import sun.misc.Signal;
-import sun.reflect.generics.tree.Tree;
 
 import java.net.URL;
 import java.util.*;
@@ -30,6 +26,8 @@ public class SensorController implements Initializable {
     public LineChart<Double, Double> lineChart1;
     public LineChart<Double, Double> lineChart2;
     public LineChart<Double, Double> lineChart3;
+
+    private SineWave received;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -73,11 +71,18 @@ public class SensorController implements Initializable {
         simulationSignalFrequency.setText("100");
         bufferLength.setText("200");
         simulationTestPeriod.setText("10");
+
+        lineChart1.setVisible(true);
+        lineChart2.setVisible(true);
+        lineChart3.setVisible(true);
+        lineChart1.setCreateSymbols(false);
+        lineChart2.setCreateSymbols(false);
+        lineChart3.setCreateSymbols(false);
     }
 
     @FXML
     private void simulate() {
-/*        float sbt = Float.parseFloat(simulationBaseTime.getText());
+        float sbt = Float.parseFloat(simulationBaseTime.getText());
         float ov = Float.parseFloat(objectVelocity.getText());
         float wv = Float.parseFloat(waveVelocity.getText());
         float ssp = Float.parseFloat(simulationSignalPeriod.getText());
@@ -86,27 +91,31 @@ public class SensorController implements Initializable {
         float stp = Float.parseFloat(simulationTestPeriod.getText());
 
         SineWave sent = new SineWave(1f, 0f, bl / ssf, ssp, 0);
-        SineWave received = null;
-        TreeMap<Double, Double> output = new TreeMap<>();
-
         sent.signalFrequency = ssf;
         sent.step = (float) (1.0 / ssf);
         sent.generateSignal();
-        lineChart1.getData().add(createNewDataSeries(sent.signal));
 
-        //double[] usableValues;
+        lineChart1.getData().clear();
+        lineChart2.getData().clear();
+        lineChart3.getData().clear();
+
+        lineChart1.getData().add(createNewDataSeries(sent.signal, "Signal sent"));
+
+        TreeMap<Double, Double> output = new TreeMap<>();
+
         List<Double> usableValues;// = Arrays.asList(new Double[10]);
 
         double currentTime = 0;
         double objectPosition = 100;
         double relativeVelocity = wv - ov;
-        double timeToImpact = 0;
-        double waveSendTime = 0;
-        double wavePropagationTime = 0;
-        double waveComebackTime = 0;
+        double timeToImpact;
+        double waveSendTime;
+        double wavePropagationTime;
+        double waveComebackTime;
         double calculatedDistance;
         int maximumCollerationIndex;
         double collerationBasedTimeDifference;
+
         while (currentTime < sbt) {
             //Time before sending the wave
             currentTime += stp;
@@ -130,56 +139,58 @@ public class SensorController implements Initializable {
             received.signalFrequency = ssf;
             received.step = (float) (1.0 / ssf);
             received.generateSignal();
-            //received = Signal.GenerateSensorSignal(bufferLength, simulationSignalFrequency, simulationSignalPeriod, wavePropagationTime);
             output = sent.correlate(received, false);//Signal.Correlation(sent, received);
 
+            List<Double> outputValues = new ArrayList<>(output.values());
 
             //Calculating the distance
-            //usableValues = new double[output.size() / 2];
-            usableValues = Arrays.asList(new Double[output.size() / 2]);
-            for (int i = 0; i < output.size() / 2; i++) {
-                usableValues.set(i, 0.0);
+            int tempSize = output.size() / 2;
+            usableValues = Arrays.asList(new Double[tempSize]);
+
+
+            for (int i = 0; i < tempSize; i++) {
+                usableValues.set(i, outputValues.get(tempSize + i));
             }
-            //usableValues = Arrays.asList(new Double[output.size() / 2]);
-            for (int i = 0; i < usableValues.size(); i++) {
-                usableValues.set(i, output.get((output.size() / 2.0) + i));
-            }
+
             maximumCollerationIndex = 0;
 
-            for (int i = 1; i < usableValues.size() && maximumCollerationIndex == 0; i++) {
-                System.out.println(Collections.max(usableValues));
+            for (int i = 1; i < tempSize && maximumCollerationIndex == 0; i++) {
                 if (usableValues.get(i).equals(Collections.max(usableValues))) {
                     maximumCollerationIndex = i;
                 }
             }
 
-
-            //signalB = received;
-
             collerationBasedTimeDifference = (maximumCollerationIndex / ssf);
 
             calculatedDistance = (collerationBasedTimeDifference * wv);
-            System.out.println(output.size());
-            System.out.println(usableValues.size());
-            //correlationOutput.values = usableValues;
-            //correlationOutput.samples = usableValues.size();
-            //output = correlationOutput;
 
-            if (collerationBasedTimeDifference == 0) {
+            double lastKey = output.lastKey();
+            output.clear();
+            int i = 0;
+            for (double t = 0.0; Math.round(t * ssf) / ssf < lastKey; t += received.step*2) {
+                output.put((double) (Math.round(t * ssf) / ssf), usableValues.get(i));
+                i++;
+            }
+
+            if (collerationBasedTimeDifference == 0.0) {
                 System.out.println("Zbyt niska częstotliwość próbkowania sygnału");
             } else {
                 //System.out.println("t = {3}: Odległość rzeczywista: {0}; odległość wyliczona: {1}; Błąd: {2}", objectPosition, calculatedDistance, objectPosition - calculatedDistance, currentTime);
+                System.out.println("t = " + objectPosition);
+                System.out.println("Odległość rzeczywista: " + calculatedDistance);
+                System.out.println("Odległość wyliczona: " + (objectPosition - calculatedDistance));
+                System.out.println("Błąd: " + currentTime);
             }
         }
 
-        //lineChart1.getData().add(createNewDataSeries(sent.signal));
-        //lineChart2.getData().add(createNewDataSeries(received.signal));
-       // lineChart3.getData().add(createNewDataSeries(output));
- */   }
+        lineChart2.getData().add(createNewDataSeries(received.signal, "Received signal"));
+        lineChart3.getData().add(createNewDataSeries(output, "Output"));
 
-    private XYChart.Series<Double, Double> createNewDataSeries(TreeMap<Double, Double> signal) {
+    }
+
+    private XYChart.Series<Double, Double> createNewDataSeries(TreeMap<Double, Double> signal, String name) {
         XYChart.Series<Double, Double> series = new XYChart.Series<>();
-        //series.setName(chosenSignal.toString());
+        series.setName(name);
 
         //adding data from signals to series
         for (Map.Entry<Double, Double> entry : signal.entrySet()) {

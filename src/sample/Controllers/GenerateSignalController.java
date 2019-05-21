@@ -315,7 +315,7 @@ public class GenerateSignalController implements Initializable {
     }
 
     @FXML
-    private  void openSensorSimulationWindow(ActionEvent event){
+    private  void openSensorSimulationWindow(){
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../Views/sensorSimulation.fxml"));
             Parent root1 = fxmlLoader.load();

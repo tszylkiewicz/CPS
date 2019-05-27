@@ -167,20 +167,16 @@ public class SensorController implements Initializable {
             double lastKey = output.lastKey();
             output.clear();
             int i = 0;
-            for (double t = 0.0; Math.round(t * ssf) / ssf < lastKey; t += received.step*2) {
+            for (double t = 0.0; Math.round(t * ssf) / ssf < lastKey; t += received.step * 2) {
                 output.put((double) (Math.round(t * ssf) / ssf), usableValues.get(i));
                 i++;
             }
 
-            if (collerationBasedTimeDifference == 0.0) {
-                System.out.println("Zbyt niska częstotliwość próbkowania sygnału");
-            } else {
-                //System.out.println("t = {3}: Odległość rzeczywista: {0}; odległość wyliczona: {1}; Błąd: {2}", objectPosition, calculatedDistance, objectPosition - calculatedDistance, currentTime);
-                System.out.println("t = " + objectPosition);
-                System.out.println("Odległość rzeczywista: " + calculatedDistance);
-                System.out.println("Odległość wyliczona: " + (objectPosition - calculatedDistance));
-                System.out.println("Błąd: " + currentTime);
-            }
+            System.out.println("t = " + objectPosition);
+            System.out.println("Odległość rzeczywista: " + calculatedDistance);
+            System.out.println("Odległość wyliczona: " + (objectPosition - calculatedDistance));
+            System.out.println("Błąd: " + currentTime);
+
         }
 
         lineChart2.getData().add(createNewDataSeries(received.signal, "Received signal"));

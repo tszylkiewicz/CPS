@@ -272,6 +272,26 @@ public class GenerateSignalController implements Initializable {
     }
 
     @FXML
+    private void openFourierWindow(ActionEvent event) {
+//        Node node = (Node) event.getSource();
+//        String data = (String) node.getUserData();
+//        int value = Integer.parseInt(data);
+
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../Views/fourier.fxml"));
+            Parent root1 = fxmlLoader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Fourier");
+            stage.setScene(new Scene(root1, 940, 740));
+            stage.setResizable(false);
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @FXML
     private void openSignalConversionWindow(ActionEvent event) {
         Node node = (Node) event.getSource();
         String data = (String) node.getUserData();

@@ -36,6 +36,14 @@ public class BaseSignal {
         signal = new TreeMap<>();
     }
 
+    public BaseSignal(float A, float t1, float d, double signalFrequency) {
+        this.A = A;
+        this.t1 = t1;
+        this.d = d;
+        this.signalFrequency = signalFrequency;
+        signal = new TreeMap<>();
+    }
+
     public BaseSignal(BaseSignal baseSignal) {
         this.A = baseSignal.A;
         this.t1 = baseSignal.t1;

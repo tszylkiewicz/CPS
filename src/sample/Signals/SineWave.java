@@ -11,6 +11,12 @@ public class SineWave extends BaseSignal {
         this.type = type;
     }
 
+    public SineWave(float A, float t1, float d, float T, int type, double signalFrequency) {
+        super(A, t1, d, signalFrequency);
+        this.T = T;
+        this.type = type;
+    }
+
     @Override
     public double signalFunction(double x) {
         double part = Math.sin(((2.0d * Math.PI) / T) * (x - t1));

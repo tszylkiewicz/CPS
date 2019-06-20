@@ -59,6 +59,8 @@ public class FourierController {
         fourier1.getData().clear();
         fourier1.setVisible(true);
         fourier1.getData().add(generateRealSeries());
+
+        //rysowanie wykresu oryginalnego S1, S2, S3.
 //        fourier1.getData().add(generateSeries_S1_S2_S3_FunctionSeries());
 
 

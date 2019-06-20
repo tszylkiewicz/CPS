@@ -12,12 +12,13 @@ public class DiscreteFourierTranform {
         int count = values.size();
         if ((count != 0) && ((count & (count - 1)) != 0))
         {
-            throw new Exception("Number of values has to be power of 2");
+            throw new Exception("Number of values must be power of 2.");
         }
         List<Complex> ret = new ArrayList<>();
 
         for (int i = 0; i < count; i++)
         {
+
             ret.add(TransformValue(i, values).divide(count));
         }
 
@@ -26,13 +27,18 @@ public class DiscreteFourierTranform {
 
     private static Complex TransformValue(int m, List<Complex> values)
     {
-        Complex ret = new Complex(0);
+        Complex ret = new Complex(0,0);
 
         int count = values.size();
 
-        for (int i = 0; i < count; i++)
-        {
-            ret.add(new Complex(values.get(i).getReal(), values.get(i).getImaginary()).multiply(CoreFactor(m, i, count)));
+        for (int i = 0; i < count; i++) {
+
+//comment only for debug
+//            System.out.println("The ret before sum are: " + ret + " for i = " + i + "\nCoreFactor: " + CoreFactor(m, i, count) + "\nComplex Value from Values: " + new Complex(values.get(i).getReal(), values.get(i).getImaginary()) +
+//                    "\nMultiplication: " + new Complex(values.get(i).getReal(), values.get(i).getImaginary()).multiply(CoreFactor(m, i, count)));
+
+            ret = ret.add(new Complex(values.get(i).getReal(), values.get(i).getImaginary()).multiply(CoreFactor(m, i, count)));
+//            System.out.println("The ret after sum are: " + ret);
         }
 
         return ret;

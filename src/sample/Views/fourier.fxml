@@ -2,32 +2,38 @@
 
 <?import javafx.scene.chart.BarChart?>
 <?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
 <?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controllers.FourierController">
+<AnchorPane prefHeight="827.0" prefWidth="1003.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controllers.FourierController">
     <GridPane AnchorPane.leftAnchor="20.0" AnchorPane.topAnchor="40.0">
         <columnConstraints>
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
         </columnConstraints>
         <rowConstraints>
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
-        <TextField fx:id="partsNumber" GridPane.columnIndex="1" />
     </GridPane>
-    <BarChart fx:id="fourier" layoutX="107.0" layoutY="142.0" title="Fourier" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+    <LineChart fx:id="fourier1" layoutY="80.0" prefHeight="358.0" prefWidth="1000.0" title="Real" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
         <xAxis>
-            <CategoryAxis side="RIGHT" fx:id="xAxis" />
+            <NumberAxis side="RIGHT" fx:id="xAxis" />
         </xAxis>
         <yAxis>
             <NumberAxis fx:id="yAxis" side="LEFT" />
         </yAxis>
-    </BarChart>
+    </LineChart>
    <Button layoutX="441.0" layoutY="43.0" mnemonicParsing="false" onAction="#getCustomSignal" prefHeight="25.0" prefWidth="100.0" text="Generate" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="40.0" />
+   <LineChart fx:id="fourier2" layoutX="7.0" layoutY="432.0" prefHeight="350.0" prefWidth="1000.0" title="Imaginary">
+     <xAxis>
+       <NumberAxis label="X" side="BOTTOM" />
+     </xAxis>
+     <yAxis>
+       <NumberAxis label="Y" side="LEFT" />
+     </yAxis>
+   </LineChart>
 </AnchorPane>

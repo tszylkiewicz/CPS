@@ -18,13 +18,17 @@ public class CustomSignal {
 
         BaseSignal bs = new BaseSignal();
 
-        List<Double> sum = sumOfCollections(new ArrayList<Double>(sineWave1.signal.values()), new ArrayList<Double>(sineWave2.signal.values()), new ArrayList<Double>(sineWave3.signal.values()));
+        List<Double> sum = sumOfCollections(new ArrayList<>(sineWave1.signal.values()), new ArrayList<>(sineWave2.signal.values()), new ArrayList<>(sineWave3.signal.values()));
 
         int counter = 0;
         for (Map.Entry<Double, Double> entry : sineWave1.signal.entrySet()) {
-            bs.signal.put(entry.getKey(), sum.get(counter));
+
+            if(sineWave1.signal.size() > (counter+1)) {
+                bs.signal.put(entry.getKey(), sum.get(counter));
+            }
             counter++;
         }
+
 
         return bs;
 

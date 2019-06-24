@@ -12,6 +12,7 @@ import org.apache.commons.math3.complex.Complex;
 import sample.Fourier.DiscreteFourierTranform;
 import sample.Fourier.FastFourierTransfrom;
 import sample.Fourier.UtilsComplex;
+import sample.Fourier.WaveletTransform;
 import sample.Signals.BaseSignal;
 import sample.Signals.CustomSignal;
 
@@ -35,6 +36,9 @@ public class FourierController implements Initializable {
     private static final String TRANSFORM_FFT = "Fast Transform Fourier";
 
     private static final String TRANSFORM_REVERSE_FFT = "Reverse Fast Fourier Transform";
+
+    private static final String WAVELET_TRANSFORM = "Wavelet Transformation";
+
 
     //top chart
     public LineChart<Double, Double> fourier1;
@@ -92,6 +96,7 @@ public class FourierController implements Initializable {
         choiceBoxTransformationType.getItems().add(TRANSFORM_REVERSE_DFT);
         choiceBoxTransformationType.getItems().add(TRANSFORM_FFT);
         choiceBoxTransformationType.getItems().add(TRANSFORM_REVERSE_FFT);
+        choiceBoxTransformationType.getItems().add(WAVELET_TRANSFORM);
 
         //set default
         choiceBoxTransformationType.setValue(TRANSFORM_DFT);
@@ -126,6 +131,8 @@ public class FourierController implements Initializable {
             generateFFT();
         } else if (choiceBoxTransformationType.getValue().equals(TRANSFORM_REVERSE_FFT)) {
             generateReverseFFT();
+        } else if (choiceBoxTransformationType.getValue().equals(WAVELET_TRANSFORM)){
+            genereteWavelet();
         }
 
         if (choiceBoxTransformationType.getValue().equals(TRANSFORM_REVERSE_DFT)) {
@@ -217,6 +224,36 @@ public class FourierController implements Initializable {
         reverseFourier.getData().add(generateCustomSignal());
     }
 
+
+
+
+    private void genereteWavelet() {
+        try {
+            transformedSignal.clear();
+            long startTime = System.currentTimeMillis();
+
+            List<Double> points = new ArrayList<>();
+
+            for (Double val: bs.signal.values()
+                 ) {
+                points.add(val);
+            }
+
+                    transformedSignal = WaveletTransform.WaveletTransformation(points);
+            long stopTime = System.currentTimeMillis();
+            setDurationTime(startTime, stopTime);
+
+            if (transformedSignal.isEmpty()) {
+                throw new Exception("The transformed parameters is empty.");
+            }
+
+            fillComplexList();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
 
 
     private void generateDFT() {
@@ -336,7 +373,11 @@ public class FourierController implements Initializable {
         int count = 0;
         //adding data from signals to series
         for (Map.Entry<Double, Double> entry : bs.signal.entrySet()) {
-            series.getData().add(new XYChart.Data<>(entry.getKey(), listImaginary.get(count)));
+            if(listImaginary.size()-1 < count) {
+                break;
+            } else {
+                series.getData().add(new XYChart.Data<>(entry.getKey(), listImaginary.get(count)));
+            }
             count++;
         }
 
@@ -351,7 +392,11 @@ public class FourierController implements Initializable {
         int count = 0;
         //adding data from signals to series
         for (Map.Entry<Double, Double> entry : bs.signal.entrySet()) {
-            series.getData().add(new XYChart.Data<>(entry.getKey(), listReal.get(count)));
+            if (listReal.size()-1 < count) {
+                break;
+            } else {
+                series.getData().add(new XYChart.Data<>(entry.getKey(), listReal.get(count)));
+            }
             count++;
         }
 
@@ -366,7 +411,11 @@ public class FourierController implements Initializable {
         int count = 0;
         //adding data from signals to series
         for (Map.Entry<Double, Double> entry : bs.signal.entrySet()) {
-            series.getData().add(new XYChart.Data<>(entry.getKey(), listPhase.get(count)));
+            if (listPhase.size()-1 < count) {
+                break;
+            } else {
+                series.getData().add(new XYChart.Data<>(entry.getKey(), listPhase.get(count)));
+            }
             count++;
         }
 
@@ -381,7 +430,11 @@ public class FourierController implements Initializable {
         int count = 0;
         //adding data from signals to series
         for (Map.Entry<Double, Double> entry : bs.signal.entrySet()) {
-            series.getData().add(new XYChart.Data<>(entry.getKey(), listMagnitude.get(count)));
+            if(listMagnitude.size()-1 < count) {
+                break;
+            } else {
+                series.getData().add(new XYChart.Data<>(entry.getKey(), listMagnitude.get(count)));
+            }
             count++;
         }
 

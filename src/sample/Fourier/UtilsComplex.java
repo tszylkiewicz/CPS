@@ -16,7 +16,6 @@ public class UtilsComplex {
             ret.add(new Complex(val, 0));
         }
 
-
         return ret;
     }
 

@@ -19,5 +19,12 @@ public class UtilsComplex {
         return ret;
     }
 
+    public static Complex coreFactor(int m, int n, int N) {
+        return new Complex(0, -2 * Math.PI * m * n / N).exp();
+    }
+
+    public static Complex reverseCoreFactor(int m, int n, int N) {
+        return new Complex(0, 2 * Math.PI * m * n / N).exp();
+    }
 
 }

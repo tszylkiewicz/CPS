@@ -6,7 +6,7 @@ import java.util.Map;
 
 public class CustomSignal {
 
-    public BaseSignal getCustomSignal(float duration) throws Exception {
+    public BaseSignal getCustomSignal(int duration) throws Exception {
         SineWave sineWave1 = new SineWave(2.0f, 0, duration, 2.0f, 0, 16.0);
         sineWave1.generateSignal();
 

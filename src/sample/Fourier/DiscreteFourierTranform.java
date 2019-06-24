@@ -29,23 +29,10 @@ public class DiscreteFourierTranform {
         int count = values.size();
 
         for (int i = 0; i < count; i++) {
-            ret = ret.add(new Complex(values.get(i).getReal(), values.get(i).getImaginary()).multiply(CoreFactor(m, i, count)));
+            ret = ret.add(new Complex(values.get(i).getReal(), values.get(i).getImaginary()).multiply(UtilsComplex.coreFactor(m, i, count)));
         }
 
         return ret;
-    }
-
-
-    /**
-     * Tutaj należy się upewnić żę funkcja się dobrze liczy.
-     *
-     * @param m
-     * @param n
-     * @param N
-     * @return
-     */
-    private static Complex CoreFactor(int m, int n, int N) {
-        return new Complex(0, -2 * Math.PI * m * n / N).exp();
     }
 
 
@@ -69,14 +56,13 @@ public class DiscreteFourierTranform {
         Double ret = new Double(0);
         int count = values.size();
         for (int i = 0; i < count; i++) {
-            ret += (values.get(i).multiply(ReverseCoreFactor(m, i, count))).getReal();
+            ret += (values.get(i).multiply(UtilsComplex.reverseCoreFactor(m, i, count))).getReal();
         }
 
         return ret;
     }
 
 
-    private static Complex ReverseCoreFactor(int m, int n, int N) {
-        return new Complex(0, 2 * Math.PI * m * n / N).exp();
-    }
 }
+
+

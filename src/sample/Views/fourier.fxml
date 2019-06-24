@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.chart.CategoryAxis?>
 <?import javafx.scene.chart.LineChart?>
 <?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -31,7 +31,7 @@
             <NumberAxis fx:id="yAxis" side="LEFT" />
         </yAxis>
     </LineChart>
-   <Button layoutX="866.0" layoutY="40.0" mnemonicParsing="false" onAction="#getCustomSignal" prefHeight="25.0" prefWidth="100.0" text="Transform" AnchorPane.rightAnchor="41.0" AnchorPane.topAnchor="40.0" />
+   <Button layoutX="866.0" layoutY="40.0" mnemonicParsing="false" onAction="#onTransform" prefHeight="25.0" prefWidth="100.0" text="Transform" AnchorPane.rightAnchor="41.0" AnchorPane.topAnchor="40.0" />
    <LineChart fx:id="fourier2" layoutX="7.0" layoutY="432.0" prefHeight="350.0" prefWidth="1000.0" title="Imaginary">
      <xAxis>
        <NumberAxis label="X" side="BOTTOM" fx:id="xAxisFourier2" />
@@ -53,4 +53,7 @@
        <NumberAxis side="LEFT" />
      </yAxis>
    </LineChart>
+   <Button fx:id="generateSignal" layoutX="318.0" layoutY="40.0" mnemonicParsing="false" onAction="#getCustomSignal" text="Generate Signal" />
+   <Label layoutX="318.0" layoutY="14.0" text="Duration:" />
+   <TextField fx:id="duration" layoutX="379.0" layoutY="10.0" />
 </AnchorPane>

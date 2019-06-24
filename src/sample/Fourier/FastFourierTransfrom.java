@@ -23,7 +23,7 @@ public class FastFourierTransfrom {
 
     }
 
-    public static List<Double> FastFourierBackwardTransformation(List<Complex> points) {
+    public static List<Double> FastFourierReverseTransformation(List<Complex> points) {
         List<Complex> transformed = SwitchSamples(points, true);
 
         List<Double> afterChange = new ArrayList<>();

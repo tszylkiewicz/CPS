@@ -40,10 +40,10 @@
        <NumberAxis fx:id="yAxisFourier2" label="Y" side="LEFT" />
      </yAxis>
    </LineChart>
-   <ChoiceBox fx:id="choiceBoxTypeOfChart" layoutX="121.0" layoutY="44.0" prefWidth="150.0" />
+   <ChoiceBox fx:id="choiceBoxTypeComplexChart" layoutX="121.0" layoutY="44.0" prefWidth="150.0" />
    <Label layoutX="753.0" layoutY="71.0" text="Generating time:" />
    <ChoiceBox fx:id="choiceBoxTransformationType" layoutX="626.0" layoutY="40.0" prefWidth="150.0" />
-   <Label fx:id="transformationTime" layoutX="866.0" layoutY="71.0" text="0.0"/>
+   <Label fx:id="transformationTime" layoutX="866.0" layoutY="71.0" text="0.0" />
    <Label layoutX="512.0" layoutY="44.0" text="Transformation type:" />
    <LineChart fx:id="reverseFourier" layoutX="25.0" layoutY="118.0" prefHeight="629.0" prefWidth="957.0">
      <xAxis>

@@ -6,7 +6,7 @@ import java.util.Map;
 
 public class CustomSignal {
 
-    public BaseSignal getCustomSignal(int duration) throws Exception {
+    public static BaseSignal getCustomSignal(int duration) throws Exception {
         SineWave sineWave1 = new SineWave(2.0f, 0, duration, 2.0f, 0, 16.0);
         sineWave1.generateSignal();
 
@@ -23,18 +23,45 @@ public class CustomSignal {
         int counter = 0;
         for (Map.Entry<Double, Double> entry : sineWave1.signal.entrySet()) {
 
-            if(sineWave1.signal.size() > (counter+1)) {
+            if (sineWave1.signal.size() > (counter + 1)) {
                 bs.signal.put(entry.getKey(), sum.get(counter));
             }
             counter++;
         }
 
+        return bs;
+
+    }
+
+    public static BaseSignal getCustomSignalS1(int duration) {
+        SineWave sineWave1 = new SineWave(2.0f, 0, duration, 2.0f, 0, 16.0);
+        sineWave1.generateSignal();
+
+        BaseSignal bs = new BaseSignal();
+
+        for (Map.Entry<Double, Double> entry : sineWave1.signal.entrySet()) {
+            bs.signal.put(entry.getKey(), entry.getValue());
+        }
 
         return bs;
 
     }
 
-    private List<Double> sumOfCollections(ArrayList<Double> tab1, ArrayList<Double> tab2, ArrayList<Double> tab3) throws Exception {
+    public static BaseSignal getCustomSignalS2(int duration) {
+        SineWave sineWave2 = new SineWave(1.0f, 0, duration, 1.0f, 0, 16.0);
+        sineWave2.generateSignal();
+
+        BaseSignal bs = new BaseSignal();
+
+        for (Map.Entry<Double, Double> entry : sineWave2.signal.entrySet()) {
+            bs.signal.put(entry.getKey(), entry.getValue());
+        }
+
+        return bs;
+
+    }
+
+    private static List<Double> sumOfCollections(ArrayList<Double> tab1, ArrayList<Double> tab2, ArrayList<Double> tab3) throws Exception {
         if (tab1.size() != tab2.size() || tab1.size() != tab3.size()) {
             throw new Exception("Błąd podczas sumowania kolekcji.");
         }

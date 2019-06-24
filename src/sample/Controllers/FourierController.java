@@ -39,6 +39,7 @@ public class FourierController implements Initializable {
 
     private static final String WAVELET_TRANSFORM = "Wavelet Transformation";
 
+    private static final String WAVELET_REVERSE_TRANSFORM = "Reverse Wavelet Transformation";
 
     //top chart
     public LineChart<Double, Double> fourier1;
@@ -55,7 +56,7 @@ public class FourierController implements Initializable {
     public LineChart reverseFourier;
 
     @FXML
-    public ChoiceBox<String> choiceBoxTypeOfChart = new ChoiceBox<>();
+    public ChoiceBox<String> choiceBoxTypeComplexChart = new ChoiceBox<>();
 
     //duration custom signal
     public TextField duration;
@@ -65,7 +66,7 @@ public class FourierController implements Initializable {
 
     List<Complex> transformedSignal = new ArrayList<>();
 
-    private BaseSignal bs;
+    private BaseSignal baseSignal;
 
     @FXML
     private NumberAxis xAxis;
@@ -86,34 +87,32 @@ public class FourierController implements Initializable {
         fourier1.setVisible(true);
         fourier2.setVisible(true);
         reverseFourier.setVisible(false);
-        choiceBoxTypeOfChart.getItems().add(W1_REAL_IMAGINARY);
-        choiceBoxTypeOfChart.getItems().add(W2_MAGNITUDE_FAZE);
+        choiceBoxTypeComplexChart.getItems().add(W1_REAL_IMAGINARY);
+        choiceBoxTypeComplexChart.getItems().add(W2_MAGNITUDE_FAZE);
 
         //set default
-        choiceBoxTypeOfChart.setValue(W1_REAL_IMAGINARY);
+        choiceBoxTypeComplexChart.setValue(W1_REAL_IMAGINARY);
 
         choiceBoxTransformationType.getItems().add(TRANSFORM_DFT);
         choiceBoxTransformationType.getItems().add(TRANSFORM_REVERSE_DFT);
         choiceBoxTransformationType.getItems().add(TRANSFORM_FFT);
         choiceBoxTransformationType.getItems().add(TRANSFORM_REVERSE_FFT);
         choiceBoxTransformationType.getItems().add(WAVELET_TRANSFORM);
+        choiceBoxTransformationType.getItems().add(WAVELET_REVERSE_TRANSFORM);
 
         //set default
         choiceBoxTransformationType.setValue(TRANSFORM_DFT);
-
     }
 
     @FXML
     public void getCustomSignal() {
-
-        CustomSignal cs = new CustomSignal();
         try {
-            bs = cs.getCustomSignal(Integer.parseInt(duration.getText()));
+            baseSignal = CustomSignal.getCustomSignal(Integer.parseInt(duration.getText()));
+            drawCustomSignal("Custom signal S1+S2+S3.");
+
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        drawCustomSignal("Custom signal S1+S2+S3.");
 
     }
 
@@ -125,13 +124,9 @@ public class FourierController implements Initializable {
 
         if (choiceBoxTransformationType.getValue().equals(TRANSFORM_DFT)) {
             generateDFT();
-        } else if (choiceBoxTransformationType.getValue().equals(TRANSFORM_REVERSE_DFT)) {
-            generateReverseDFT();
-        } else if (choiceBoxTransformationType.getValue().equals(TRANSFORM_FFT)) {
+        }  else if (choiceBoxTransformationType.getValue().equals(TRANSFORM_FFT)) {
             generateFFT();
-        } else if (choiceBoxTransformationType.getValue().equals(TRANSFORM_REVERSE_FFT)) {
-            generateReverseFFT();
-        } else if (choiceBoxTransformationType.getValue().equals(WAVELET_TRANSFORM)){
+        }  else if (choiceBoxTransformationType.getValue().equals(WAVELET_TRANSFORM)){
             genereteWavelet();
         }
 
@@ -139,9 +134,11 @@ public class FourierController implements Initializable {
             drawReverseDFT("Reverse DFT Signal");
         } else if (choiceBoxTransformationType.getValue().equals(TRANSFORM_REVERSE_FFT)){
             drawReverseFFT("Reverse FFT Signal");
+        } else if(choiceBoxTransformationType.getValue().equals(WAVELET_REVERSE_TRANSFORM)){
+            drawReverseWavelet("Reverse Wavelet Transformation.");
         }
             else {
-            if (choiceBoxTypeOfChart.getValue().equals(W1_REAL_IMAGINARY)) {
+            if (choiceBoxTypeComplexChart.getValue().equals(W1_REAL_IMAGINARY)) {
                 drawW1();
             } else {
                 drawW2();
@@ -218,13 +215,17 @@ public class FourierController implements Initializable {
         reverseFourier.getData().add(generateReverseFFT());
     }
 
+    private void drawReverseWavelet(String title) {
+        setDiagramReverse();
+        reverseFourier.setTitle(title);
+        reverseFourier.getData().add(generateReverseWavelet());
+    }
+
     private void drawCustomSignal(String title) {
         setDiagramReverse();
         reverseFourier.setTitle(title);
         reverseFourier.getData().add(generateCustomSignal());
     }
-
-
 
 
     private void genereteWavelet() {
@@ -234,12 +235,12 @@ public class FourierController implements Initializable {
 
             List<Double> points = new ArrayList<>();
 
-            for (Double val: bs.signal.values()
-                 ) {
+            for (Double val: baseSignal.signal.values()
+            ) {
                 points.add(val);
             }
 
-                    transformedSignal = WaveletTransform.WaveletTransformation(points);
+            transformedSignal = WaveletTransform.WaveletTransformation(points);
             long stopTime = System.currentTimeMillis();
             setDurationTime(startTime, stopTime);
 
@@ -256,8 +257,24 @@ public class FourierController implements Initializable {
     }
 
 
+    private XYChart.Series<Double, Double> generateReverseWavelet() {
+        try {
+            long startTime = System.currentTimeMillis();
+            List<Double> listOfReverse = WaveletTransform.WaveletReverseTransformation(transformedSignal);
+            long stopTime = System.currentTimeMillis();
+            setDurationTime(startTime, stopTime);
+            return generateReverseSeries("Reverse of Wavelet transformation", listOfReverse);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+
     private void generateDFT() {
-        List<Complex> complexes = UtilsComplex.ConvertRealToComplex((new ArrayList<>(bs.signal.values())));
+        List<Complex> complexes = UtilsComplex.ConvertRealToComplex((new ArrayList<>(baseSignal.signal.values())));
 
         try {
             transformedSignal.clear();
@@ -280,7 +297,11 @@ public class FourierController implements Initializable {
 
     private XYChart.Series<Double, Double> generateReverseDFT() {
         try {
+            long startTime = System.currentTimeMillis();
             List<Double> listOfReverse = DiscreteFourierTranform.TransformBack(transformedSignal);
+            long stopTime = System.currentTimeMillis();
+            setDurationTime(startTime, stopTime);
+
             return generateReverseSeries("Reverse of DFT", listOfReverse);
 
         } catch (Exception e) {
@@ -290,7 +311,7 @@ public class FourierController implements Initializable {
     }
 
     private void generateFFT() {
-        List<Complex> complexes = UtilsComplex.ConvertRealToComplex((new ArrayList<>(bs.signal.values())));
+        List<Complex> complexes = UtilsComplex.ConvertRealToComplex((new ArrayList<>(baseSignal.signal.values())));
 
         transformedSignal.clear();
 
@@ -318,7 +339,10 @@ public class FourierController implements Initializable {
     }
 
     private XYChart.Series<Double, Double> generateReverseFFT() {
-        List<Double> listOfReverse = FastFourierTransfrom.FastFourierBackwardTransformation(transformedSignal);
+        long startTime = System.currentTimeMillis();
+        List<Double> listOfReverse = FastFourierTransfrom.FastFourierReverseTransformation(transformedSignal);
+        long stopTime = System.currentTimeMillis();
+        setDurationTime(startTime, stopTime);
         return generateReverseSeries("Reverse of FFT", listOfReverse);
 
     }
@@ -329,7 +353,7 @@ public class FourierController implements Initializable {
 
         int count = 0;
         //adding data from signals to series
-        for (Map.Entry<Double, Double> entry : bs.signal.entrySet()) {
+        for (Map.Entry<Double, Double> entry : baseSignal.signal.entrySet()) {
             series.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue()));
             count++;
         }
@@ -357,7 +381,7 @@ public class FourierController implements Initializable {
 
         int count = 0;
         //adding data from signals to series
-        for (Map.Entry<Double, Double> entry : bs.signal.entrySet()) {
+        for (Map.Entry<Double, Double> entry : baseSignal.signal.entrySet()) {
             series.getData().add(new XYChart.Data<>(entry.getKey(), reverse.get(count)));
             count++;
         }
@@ -372,7 +396,7 @@ public class FourierController implements Initializable {
 
         int count = 0;
         //adding data from signals to series
-        for (Map.Entry<Double, Double> entry : bs.signal.entrySet()) {
+        for (Map.Entry<Double, Double> entry : baseSignal.signal.entrySet()) {
             if(listImaginary.size()-1 < count) {
                 break;
             } else {
@@ -391,7 +415,7 @@ public class FourierController implements Initializable {
 
         int count = 0;
         //adding data from signals to series
-        for (Map.Entry<Double, Double> entry : bs.signal.entrySet()) {
+        for (Map.Entry<Double, Double> entry : baseSignal.signal.entrySet()) {
             if (listReal.size()-1 < count) {
                 break;
             } else {
@@ -410,7 +434,7 @@ public class FourierController implements Initializable {
 
         int count = 0;
         //adding data from signals to series
-        for (Map.Entry<Double, Double> entry : bs.signal.entrySet()) {
+        for (Map.Entry<Double, Double> entry : baseSignal.signal.entrySet()) {
             if (listPhase.size()-1 < count) {
                 break;
             } else {
@@ -429,7 +453,7 @@ public class FourierController implements Initializable {
 
         int count = 0;
         //adding data from signals to series
-        for (Map.Entry<Double, Double> entry : bs.signal.entrySet()) {
+        for (Map.Entry<Double, Double> entry : baseSignal.signal.entrySet()) {
             if(listMagnitude.size()-1 < count) {
                 break;
             } else {

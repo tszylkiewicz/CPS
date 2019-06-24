@@ -52,6 +52,59 @@ public class WaveletTransform {
     }
 
 
+    public static List<Double> WaveletReverseTransformation(List<Complex> points) {
+        List<Double> hRevesed = reverseArray(H);
+        List<Double> gReversed = reverseArray(G);
+
+        List<Double> hSamples = new ArrayList<>();
+        List<Double> gSamples = new ArrayList<>();
+
+        for (int i = 0; i < points.size(); i++) {
+            hSamples.add(points.get(i).getReal());
+            hSamples.add(0.0);
+
+            gSamples.add(0.0);
+            gSamples.add(points.get(i).getImaginary());
+        }
+
+        List<Double> hResult = ConvoluteSignals(hSamples, hRevesed).subList(0, hSamples.size());
+        List<Double> gResult = ConvoluteSignals(gSamples, gReversed).subList(0, gSamples.size());
+
+        return AddSignals(hResult, gResult);
+    }
+
+    public static List<Double> AddSignals(List<Double> signal1, List<Double> signal2) {
+        List<Double> result = new ArrayList<>();
+
+        for (int i = 0; i < Math.max(signal1.size(), signal2.size()); i++) {
+
+            result.add(signal1.get(i) + signal2.get(i));
+        }
+
+        return result;
+    }
+
+
+    /**
+     * Reverse Array
+     *
+     * @param regularArray
+     * @return
+     */
+    private static List<Double> reverseArray(List<Double> regularArray) {
+        int size = regularArray.size()-1;
+
+        List<Double> reverseArray = new ArrayList<>();
+
+        for (int i = size; i >= 0; i--) {
+            reverseArray.add(regularArray.get(i));
+        }
+
+        return reverseArray;
+
+    }
+
+
     public static List<Double> ConvoluteSignals(List<Double> signal1, List<Double> signal2) {
         List<Double> result = new ArrayList<>();
 

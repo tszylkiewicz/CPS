@@ -30,4 +30,4 @@ hs_err_pid*
 .idea/uiDesigner.xml
 .idea/vcs.xml
 .idea/workspace.xml
-.idea/
+.idea/libraries/commons_math3_3_6.xml
